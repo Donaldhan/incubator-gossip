@@ -43,7 +43,11 @@ abstract class StandAloneExampleBase {
     return true;
   }
 
-  void exec(boolean willRead) throws IOException {
+  /**
+   * @param willRead
+   * @throws IOException
+   */
+  public void exec(boolean willRead) throws IOException {
     gossipService.init();
     startMonitorLoop(gossipService);
     if (willRead) {
@@ -89,6 +93,9 @@ abstract class StandAloneExampleBase {
     return lastInput;
   }
 
+  /**
+   * @param gossipService
+   */
   private void startMonitorLoop(GossipManager gossipService) {
     new Thread(() -> {
       while (true) {
@@ -128,6 +135,10 @@ abstract class StandAloneExampleBase {
     }
   }
 
+  /**
+   * 读取控制台输入命令
+   * @throws IOException
+   */
   private void startBlockingReadLoop() throws IOException {
     String line;
     try (BufferedReader br = new BufferedReader(new InputStreamReader(System.in))) {
@@ -139,6 +150,14 @@ abstract class StandAloneExampleBase {
     }
   }
 
+  /**
+   * This sets up a single StandAloneNode that starts out listening to itself. The arguments are:
+   * 1. The URI (host and port) for the node - **udp://localhost:10000**
+   * 2. The id for the node - **0**
+   * 3. The URI for a "seed" node - **udp://localhost:10000**
+   * 4. The id for that seed node - **0**
+   * @param args
+   */
   void initGossipManager(String[] args) {
     GossipSettings s = new GossipSettings();
     s.setWindowSize(1000);

@@ -67,10 +67,19 @@ public abstract class GossipManager {
 
   private final ConcurrentSkipListMap<LocalMember, GossipState> members;
   private final LocalMember me;
+  /**
+   * gossip协议配置
+   */
   private final GossipSettings settings;
   private final AtomicBoolean gossipServiceRunning;
-  
+
+  /**
+   * gossip 节点管理
+   */
   private TransportManager transportManager;
+  /**
+   * 协议管理器
+   */
   private ProtocolManager protocolManager;
   
   private final GossipCore gossipCore;
@@ -164,6 +173,7 @@ public abstract class GossipManager {
   /**
    * Starts the client. Specifically, start the various cycles for this protocol. Start the gossip
    * thread and start the receiver thread.
+   * 开启gossip线程，启动接收线程
    */
   public void init() {
     

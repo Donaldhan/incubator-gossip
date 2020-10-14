@@ -20,6 +20,9 @@ package org.apache.gossip.model;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * 保活gossip消息
+ */
 public class ActiveGossipMessage extends Base {
 
   private List<Member> members = new ArrayList<>();

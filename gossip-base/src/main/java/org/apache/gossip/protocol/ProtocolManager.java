@@ -21,7 +21,10 @@ import org.apache.gossip.model.Base;
 
 import java.io.IOException;
 
-/** interface for managing message marshaling. */
+/**
+ * interface for managing message marshaling.
+ * 协议管理器，用户发送消息到peer节点，或者解析从peer节点发送的消息
+ *  */
 public interface ProtocolManager {
 
   /** serialize a message

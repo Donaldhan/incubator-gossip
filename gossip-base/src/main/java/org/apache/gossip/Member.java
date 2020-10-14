@@ -23,25 +23,35 @@ import java.util.Map;
 
 /**
  * An abstract class representing a gossip member.
- * 
+ *
+ * gossip 成员
  */
 public abstract class Member implements Comparable<Member> {
 
   
   protected URI uri;
 
+  /**
+   *
+   */
   protected volatile long heartbeat;
 
+  /**
+   * 簇名
+   */
   protected String clusterName;
 
   /**
    * The purpose of the id field is to be able for nodes to identify themselves beyond their
    * host/port. For example an application might generate a persistent id so if they rejoin the
    * cluster at a different host and port we are aware it is the same node.
+   * 成员唯一id，在簇内最好保证唯一
    */
   protected String id;
 
-  /* properties provided at startup time */
+  /**
+   * properties provided at startup time
+   */
   protected Map<String,String> properties;
   
   /**

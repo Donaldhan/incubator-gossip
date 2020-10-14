@@ -25,7 +25,7 @@ import org.apache.gossip.accrual.FailureDetector;
 /**
  * This object represent a gossip member with the properties known locally. These objects are stored
  * in the local list of gossip members.
- * 
+ * 本地成员
  */
 public class LocalMember extends Member {
   /** The failure detector for this member */

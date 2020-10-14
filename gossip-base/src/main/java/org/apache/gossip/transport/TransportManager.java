@@ -20,21 +20,40 @@ package org.apache.gossip.transport;
 import java.io.IOException;
 import java.net.URI;
 
-/** interface for manager that sends and receives messages that have already been serialized. */
+/**
+ * interface for manager that sends and receives messages that have already been serialized.
+ * 发送接收消息管理器 */
 public interface TransportManager {
   
-  /** starts the active gossip thread responsible for reaching out to remote nodes. Not related to `startEndpoint()` */
+  /**
+   * starts the active gossip thread responsible for reaching out to remote nodes.
+   * Not related to `startEndpoint()`
+   * 启动探活gossip线程，用户发送消息到远程节点
+   * */
   void startActiveGossiper();
   
-  /** starts the passive gossip thread that receives messages from remote nodes. Not related to `startActiveGossiper()` */
+  /**
+   * starts the passive gossip thread that receives messages from remote nodes.
+   * Not related to `startActiveGossiper()`
+   *启动被动的goosip线程，用于接收远程节点的消息
+   * */
   void startEndpoint();
   
-  /** attempts to shutdown all threads. */
+  /**
+   *  attempts to shutdown all threads.
+   *
+   *  */
   void shutdown();
   
-  /** sends a payload to an endpoint. */
+  /**
+   * sends a payload to an endpoint.
+   * 发送消息
+   * */
   void send(URI endpoint, byte[] buf) throws IOException;
   
-  /** gets the next payload being sent to this node */
+  /**
+   * gets the next payload being sent to this node
+   * 读取接收到的消息
+   * */
   byte[] read() throws IOException;
 }

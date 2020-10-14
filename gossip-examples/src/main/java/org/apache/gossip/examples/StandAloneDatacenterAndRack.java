@@ -43,6 +43,7 @@ public class StandAloneDatacenterAndRack extends StandAloneExampleBase {
     initGossipManager(args);
   }
 
+  @Override
   void initGossipManager(String[] args) {
     GossipSettings s = new GossipSettings();
     s.setWindowSize(1000);

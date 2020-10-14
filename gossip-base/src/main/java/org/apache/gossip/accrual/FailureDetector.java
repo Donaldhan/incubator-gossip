@@ -23,6 +23,9 @@ import org.apache.commons.math.distribution.NormalDistributionImpl;
 import org.apache.commons.math.stat.descriptive.DescriptiveStatistics;
 import org.apache.log4j.Logger;
 
+/**
+ * 失败探测器
+ */
 public class FailureDetector {
 
   public static final Logger LOGGER = Logger.getLogger(FailureDetector.class);

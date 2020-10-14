@@ -28,7 +28,7 @@ import java.util.Map;
  */
 public class GossipSettings {
 
-  /** Time between gossip'ing in ms. Default is 1 second. */
+  /** Time between gossip'ing in ms. Default is 1 second. gossip间隔*/
   private int gossipInterval = 10;
 
   /** Time between cleanups in ms. Default is 10 seconds. */
@@ -37,7 +37,7 @@ public class GossipSettings {
   /** the minimum samples needed before reporting a result */
   private int minimumSamples = 5;
   
-  /** the number of samples to keep per host */
+  /** the number of samples to keep per host 保活每个host的采样数量*/
   private int windowSize = 5000;
   
   /** the threshold for the detector */

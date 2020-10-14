@@ -32,8 +32,8 @@ the GitHub repository.
 
 Lastly, you will need to use Maven to build and install the necessary dependencies:
 ```
-cd incubator-gossip
-mvn install -DskipTests
+cd incubator-retired-gossip
+mvn install -DskipTests -Drat.skip=true
 ```
 
 When all that is finished are you ready to start running the first example...
@@ -52,7 +52,7 @@ to the gossip-examples module and run the application in maven.
 
 Specifically, after cloning or downloading the repository:
 ```
-cd incubator-gossip/gossip-examples
+cd incubator-retired-gossip/gossip-examples
 mvn exec:java -Dexec.mainClass=org.apache.gossip.examples.StandAloneNode -Dexec.args="udp://localhost:10000 0 udp://localhost:10000 0"
 ```
 

@@ -26,6 +26,12 @@
 
 	<dependencies>
 		<dependency>
+			<groupId>org.projectlombok</groupId>
+			<artifactId>lombok</artifactId>
+			<version>1.16.8</version>
+			<scope>provided</scope>
+		</dependency>
+		<dependency>
 			<groupId>org.apache.gossip</groupId>
 			<artifactId>gossip-base</artifactId>
 			<version>${project.version}</version>

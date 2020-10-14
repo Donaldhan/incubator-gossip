@@ -23,14 +23,17 @@ import org.apache.gossip.manager.GossipManager;
 
 public class StandAloneNode extends StandAloneExampleBase {
 
-  private static boolean WILL_READ = false;
+  /**
+   * 是否从控制台读取消息
+   */
+  private static boolean WILL_READ = true;
 
   public static void main(String[] args) throws InterruptedException, IOException {
     StandAloneNode example = new StandAloneNode(args);
     example.exec(WILL_READ);
   }
 
-  StandAloneNode(String[] args) {
+  public StandAloneNode(String[] args) {
     args = super.checkArgsForClearFlag(args);
     super.initGossipManager(args);
   }
