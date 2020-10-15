@@ -126,7 +126,7 @@ using control-c, simply re-issue the command to run the node.
 
 Running org.apache.gossip.examples.StandAloneNodeCrdtOrSet
 ----------------------------------------------------------
-基于CRDT模型的示例（无冲突复制数据类型使用场景：状态和数据集）
+基于CRDT模型的示例（无冲突复制数据类型使用场景：状态和数据集），包括数据集和全局只增计数器
 This second example illustrates the using the data layer to share structured information: a shared representation of a set
 of strings, and a shared counter. The objects representing those shared values are special cases of a Conflict-free Replicated
 Data Type (hence, CRDT，无冲突复制数据类型). 
@@ -157,7 +157,6 @@ cd incubator-gossip/gossip-examples
 mvn exec:java -Dexec.mainClass=org.apache.gossip.examples.StandAloneNodeCrdtOrSet -Dexec.args="udp://localhost:10001 1 udp://localhost:10000 0"
 ```
 
-In the third terminal window:
 ```
 cd incubator-gossip/gossip-examples
 mvn exec:java -Dexec.mainClass=org.apache.gossip.examples.StandAloneNodeCrdtOrSet -Dexec.args="udp://localhost:10002 2 udp://localhost:10000 0"
@@ -186,6 +185,40 @@ of arrival of information from other nodes in the cluster.
 As an augmentation to the video, this [wikipedia article](https://en.wikipedia.org/wiki/Conflict-free_replicated_data_type),
 describing various CRDT representations and their usefulness, as well as some information about interesting applications.
 
+```
+l key
+```
+监听key当前存在问题，待排查
+
+Running org.apache.gossip.examples.StandAlonePNCounter
+----------------------------------------------------------
+全局计数器（可自增，字自减）
+启动3个终端
+In the first terminal window:
+```
+cd incubator-gossip/gossip-examples
+mvn exec:java -Dexec.mainClass=org.apache.gossip.examples.StandAlonePNCounter -Dexec.args="udp://localhost:10000 0 udp://localhost:10000 0"
+```
+
+In the second terminal window:
+```
+cd incubator-gossip/gossip-examples
+mvn exec:java -Dexec.mainClass=org.apache.gossip.examples.StandAlonePNCounter -Dexec.args="udp://localhost:10001 1 udp://localhost:10000 0"
+```
+
+In the third terminal window:
+```
+cd incubator-gossip/gossip-examples
+mvn exec:java -Dexec.mainClass=org.apache.gossip.examples.StandAlonePNCounter -Dexec.args="udp://localhost:10002 2 udp://localhost:10000 0"
+```
+
+启动三个终端执行如下命令
+```
+i 2
+d 1
+```
+* **i** 表示增加
+* **d** 表示减少
 
 Running org.apache.gossip.examples.StandAloneDatacenterAndRack
 --------------------------------------------------------------

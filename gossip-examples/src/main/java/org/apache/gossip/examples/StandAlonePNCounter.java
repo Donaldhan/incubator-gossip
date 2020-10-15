@@ -24,7 +24,10 @@ import org.apache.gossip.manager.GossipManager;
 import org.apache.gossip.model.SharedDataMessage;
 
 public class StandAlonePNCounter extends StandAloneExampleBase {
-
+  /**
+   * 共享集合
+   */
+  private static final String INDEX_KEY_FOR_PN_COUNTER = "gossip_crdt_pn_counter";
   public static void main(String[] args) throws InterruptedException, IOException {
     StandAlonePNCounter example = new StandAlonePNCounter(args);
     boolean willRead = true;
@@ -36,11 +39,12 @@ public class StandAlonePNCounter extends StandAloneExampleBase {
     super.initGossipManager(args);
   }
 
+  @Override
   void printValues(GossipManager gossipService) {
     System.out.println("Last Input: " + getLastInput());
-    System.out.println("---------- " + (gossipService.findCrdt("myPNCounter") == null ? ""
-            : gossipService.findCrdt("myPNCounter").value()));
-    System.out.println("********** " + gossipService.findCrdt("myPNCounter"));
+    System.out.println("---------- " + (gossipService.findCrdt(INDEX_KEY_FOR_PN_COUNTER) == null ? ""
+            : gossipService.findCrdt(INDEX_KEY_FOR_PN_COUNTER).value()));
+    System.out.println("********** " + gossipService.findCrdt(INDEX_KEY_FOR_PN_COUNTER));
   }
 
   @Override
@@ -66,8 +70,13 @@ public class StandAlonePNCounter extends StandAloneExampleBase {
     return valid;
   }
 
+  /**
+   * 增加计数器
+   * @param l
+   * @param gossipManager
+   */
   void increment(Long l, GossipManager gossipManager) {
-    PNCounter c = (PNCounter) gossipManager.findCrdt("myPNCounter");
+    PNCounter c = (PNCounter) gossipManager.findCrdt(INDEX_KEY_FOR_PN_COUNTER);
     if (c == null) {
       c = new PNCounter(new PNCounter.Builder(gossipManager).increment((l)));
     } else {
@@ -75,14 +84,19 @@ public class StandAlonePNCounter extends StandAloneExampleBase {
     }
     SharedDataMessage m = new SharedDataMessage();
     m.setExpireAt(Long.MAX_VALUE);
-    m.setKey("myPNCounter");
+    m.setKey(INDEX_KEY_FOR_PN_COUNTER);
     m.setPayload(c);
     m.setTimestamp(System.currentTimeMillis());
     gossipManager.merge(m);
   }
 
+  /**
+   * 减少技术器
+   * @param l
+   * @param gossipManager
+   */
   void decrement(Long l, GossipManager gossipManager) {
-    PNCounter c = (PNCounter) gossipManager.findCrdt("myPNCounter");
+    PNCounter c = (PNCounter) gossipManager.findCrdt(INDEX_KEY_FOR_PN_COUNTER);
     if (c == null) {
       c = new PNCounter(new PNCounter.Builder(gossipManager).decrement((l)));
     } else {
@@ -90,7 +104,7 @@ public class StandAlonePNCounter extends StandAloneExampleBase {
     }
     SharedDataMessage m = new SharedDataMessage();
     m.setExpireAt(Long.MAX_VALUE);
-    m.setKey("myPNCounter");
+    m.setKey(INDEX_KEY_FOR_PN_COUNTER);
     m.setPayload(c);
     m.setTimestamp(System.currentTimeMillis());
     gossipManager.merge(m);

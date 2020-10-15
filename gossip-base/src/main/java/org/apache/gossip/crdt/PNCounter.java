@@ -21,6 +21,9 @@ import java.util.Map;
 
 import org.apache.gossip.manager.GossipManager;
 
+/**
+ * 全局计数器自增自减
+ */
 public class PNCounter implements CrdtCounter<Long, PNCounter> {
 
   private final GrowOnlyCounter pCount;

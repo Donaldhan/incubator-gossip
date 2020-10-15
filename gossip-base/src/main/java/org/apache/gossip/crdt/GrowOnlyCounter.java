@@ -24,7 +24,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * 全局计数器
+ * 全局计数器，只增加不减少
  */
 public class GrowOnlyCounter implements CrdtCounter<Long, GrowOnlyCounter> {
 

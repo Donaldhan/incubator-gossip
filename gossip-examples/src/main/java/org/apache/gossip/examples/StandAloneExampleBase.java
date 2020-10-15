@@ -30,6 +30,9 @@ import org.apache.gossip.RemoteMember;
 import org.apache.gossip.manager.GossipManager;
 import org.apache.gossip.manager.GossipManagerBuilder;
 
+/**
+ * 单例基础peer
+ */
 abstract class StandAloneExampleBase {
   /**
    * 控制台出入

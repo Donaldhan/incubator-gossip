@@ -19,6 +19,7 @@ package org.apache.gossip.examples;
 
 import java.io.IOException;
 
+import lombok.extern.slf4j.Slf4j;
 import org.apache.gossip.crdt.GrowOnlyCounter;
 import org.apache.gossip.crdt.OrSet;
 import org.apache.gossip.manager.GossipManager;
@@ -27,10 +28,17 @@ import org.apache.gossip.model.SharedDataMessage;
 /**
  * 基于Gossip的CRDT状态和数据集示例
  */
+@Slf4j
 public class StandAloneNodeCrdtOrSet extends StandAloneExampleBase {
 
+  /**
+   * 共享集合
+   */
   private static final String INDEX_KEY_FOR_SET = "gossip_crdt_set";
 
+  /**
+   * 全局计数器
+   */
   private static final String INDEX_KEY_FOR_COUNTER = "gossip_crdt_counter";
 
   public static void main(String[] args) throws InterruptedException, IOException {
@@ -111,6 +119,7 @@ public class StandAloneNodeCrdtOrSet extends StandAloneExampleBase {
                 "Event Handler fired for key = '" + key + "'! " + oldValue + " " + newValue);
       }
     });
+    log.info("listen {} done",val);
   }
 
   /**
