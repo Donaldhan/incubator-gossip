@@ -27,9 +27,18 @@ import org.apache.gossip.crdt.OrSet.Builder.Operation;
  * A immutable set 
  */
 public class OrSet<E>  implements CrdtAddRemoveSet<E, Set<E>, OrSet<E>> {
-  
+
+  /**
+   * 集合元素，可以为实际的值，KEY 数据item， item对相应的UUID，每个数据对应一个UUID
+   */
   private final Map<E, Set<UUID>> elements = new HashMap<>();
+  /**
+   *集合失效元素
+   */
   private final Map<E, Set<UUID>> tombstones = new HashMap<>();
+  /**
+   * 集合有效值
+   */
   private final transient Set<E> val;
   
   public OrSet(){
@@ -47,6 +56,10 @@ public class OrSet<E>  implements CrdtAddRemoveSet<E, Set<E>, OrSet<E>> {
     this(new HashSet<>(Arrays.asList(elements)));
   }
 
+  /**
+   * 添加元素集
+   * @param elements
+   */
   public OrSet(Set<E> elements) {
     for (E e: elements){
       internalAdd(e);
@@ -67,6 +80,7 @@ public class OrSet<E>  implements CrdtAddRemoveSet<E, Set<E>, OrSet<E>> {
   
   /**
    * This constructor is the way to remove elements from an existing set
+   *
    * @param set
    * @param builder 
    */
@@ -83,6 +97,12 @@ public class OrSet<E>  implements CrdtAddRemoveSet<E, Set<E>, OrSet<E>> {
     val = computeValue();
   }
 
+  /**
+   * 合并集合
+   * @param a
+   * @param b
+   * @return
+   */
   static Set<UUID> mergeSets(Set<UUID> a, Set<UUID> b) {
     if ((a == null || a.isEmpty()) && (b == null || b.isEmpty())) {
       return null;
@@ -92,6 +112,12 @@ public class OrSet<E>  implements CrdtAddRemoveSet<E, Set<E>, OrSet<E>> {
     return res;
   }
 
+  /**
+   * 内部合并数据集
+   * @param map
+   * @param key
+   * @param value  移除给定元素的UUID
+   */
   private void internalSetMerge(Map<E, Set<UUID>> map, E key, Set<UUID> value) {
     if (value == null) {
       return;
@@ -99,6 +125,11 @@ public class OrSet<E>  implements CrdtAddRemoveSet<E, Set<E>, OrSet<E>> {
     map.merge(key, value, OrSet::mergeSets);
   }
 
+  /**
+   * 合并set集
+   * @param left
+   * @param right
+   */
   public OrSet(OrSet<E> left, OrSet<E> right){
     BiConsumer<Map<E, Set<UUID>>, Map<E, Set<UUID>>> internalMerge = (items, other) -> {
       for (Entry<E, Set<UUID>> l : other.entrySet()){
@@ -114,10 +145,20 @@ public class OrSet<E>  implements CrdtAddRemoveSet<E, Set<E>, OrSet<E>> {
     val = computeValue();
   }
 
+  /**
+   * @param e
+   * @return
+   */
+  @Override
   public OrSet<E> add(E e) {
     return this.merge(new OrSet<>(e));
   }
 
+  /**
+   * @param e
+   * @return
+   */
+  @Override
   public OrSet<E> remove(E e) {
     return new OrSet<>(this, new Builder<E>().remove(e));
   }
@@ -130,25 +171,34 @@ public class OrSet<E>  implements CrdtAddRemoveSet<E, Set<E>, OrSet<E>> {
   public OrSet<E> merge(OrSet<E> other) {
     return new OrSet<E>(this, other);
   }
-  
+
+  /**
+   * 内部添加元素
+   * @param element
+   */
   private void internalAdd(E element) {
     Set<UUID> toMerge = new HashSet<>();
     toMerge.add(UUID.randomUUID());
     internalSetMerge(elements, element, toMerge);
   }
-  
+
+  /**
+   * @param element
+   */
   private void internalRemove(E element){
     internalSetMerge(tombstones, element, elements.get(element));
   }
 
   /*
    * Computes the live values by analyzing the elements and tombstones
+   * 根据集合元素与失效元素，计算存活的元素
    */
   private Set<E> computeValue(){
     Set<E> values = new HashSet<>();
     for (Entry<E, Set<UUID>> entry: elements.entrySet()){
       Set<UUID> deleteIds = tombstones.get(entry.getKey());
       // if not all tokens for current element are in tombstones
+      //如果失效的元素的UUID不存在或者不包括元素的UUID集，则元素有效
       if (deleteIds == null || !deleteIds.containsAll(entry.getValue())) {
         values.add(entry.getKey());
       }
@@ -167,10 +217,17 @@ public class OrSet<E>  implements CrdtAddRemoveSet<E, Set<E>, OrSet<E>> {
   }
   
   public static class Builder<E> {
+    /**
+     * 支持增加和移除操作
+     */
     public static enum Operation {
       ADD, REMOVE
     };
 
+    /**
+     * 集合元素
+     * @param <EL>
+     */
     private class OrSetElement<EL> {
       EL element;
       Operation operation;

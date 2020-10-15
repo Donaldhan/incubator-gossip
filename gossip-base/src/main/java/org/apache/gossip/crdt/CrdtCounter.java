@@ -17,6 +17,11 @@
  */
 package org.apache.gossip.crdt;
 
+/**
+ * 基于CRDT的计数器
+ * @param <ValueType>
+ * @param <R>
+ */
 public interface CrdtCounter<ValueType extends Number, R extends CrdtCounter<ValueType, R>>
         extends Crdt<ValueType, R> {
   

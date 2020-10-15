@@ -24,11 +24,14 @@ import org.apache.gossip.crdt.OrSet;
 import org.apache.gossip.manager.GossipManager;
 import org.apache.gossip.model.SharedDataMessage;
 
+/**
+ * 基于Gossip的CRDT状态和数据集示例
+ */
 public class StandAloneNodeCrdtOrSet extends StandAloneExampleBase {
 
-  private static final String INDEX_KEY_FOR_SET = "abc";
+  private static final String INDEX_KEY_FOR_SET = "gossip_crdt_set";
 
-  private static final String INDEX_KEY_FOR_COUNTER = "def";
+  private static final String INDEX_KEY_FOR_COUNTER = "gossip_crdt_counter";
 
   public static void main(String[] args) throws InterruptedException, IOException {
     StandAloneNodeCrdtOrSet example = new StandAloneNodeCrdtOrSet(args);
@@ -41,6 +44,7 @@ public class StandAloneNodeCrdtOrSet extends StandAloneExampleBase {
     super.initGossipManager(args);
   }
 
+  @Override
   void printValues(GossipManager gossipService) {
     System.out.println("Last Input: " + getLastInput());
     System.out.println("---------- Or Set " + (gossipService.findCrdt(INDEX_KEY_FOR_SET) == null
@@ -52,6 +56,12 @@ public class StandAloneNodeCrdtOrSet extends StandAloneExampleBase {
     System.out.println("$$$$$$$$$$ " + gossipService.findCrdt(INDEX_KEY_FOR_COUNTER));
   }
 
+  /**
+   * 处理控制台输出，添加，移除，全局计数器，监听共享集合
+   * @param line
+   * @return
+   */
+  @Override
   boolean processReadLoopInput(String line) {
     boolean valid = true;
     char op = line.charAt(0);
@@ -89,6 +99,11 @@ public class StandAloneNodeCrdtOrSet extends StandAloneExampleBase {
     return (l >= 0);
   }
 
+  /**
+   * 监听给定值
+   * @param val
+   * @param gossipManager
+   */
   private static void listen(String val, GossipManager gossipManager) {
     gossipManager.registerSharedDataSubscriber((key, oldValue, newValue) -> {
       if (key.equals(val)) {
@@ -98,6 +113,11 @@ public class StandAloneNodeCrdtOrSet extends StandAloneExampleBase {
     });
   }
 
+  /**
+   * 全局计数器
+   * @param val
+   * @param gossipManager
+   */
   private static void gcount(String val, GossipManager gossipManager) {
     GrowOnlyCounter c = (GrowOnlyCounter) gossipManager.findCrdt(INDEX_KEY_FOR_COUNTER);
     Long l = Long.valueOf(val);
@@ -114,6 +134,11 @@ public class StandAloneNodeCrdtOrSet extends StandAloneExampleBase {
     gossipManager.merge(m);
   }
 
+  /**
+   * 移除数据
+   * @param val
+   * @param gossipService
+   */
   private static void removeData(String val, GossipManager gossipService) {
     @SuppressWarnings("unchecked")
     OrSet<String> s = (OrSet<String>) gossipService.findCrdt(INDEX_KEY_FOR_SET);
@@ -125,6 +150,11 @@ public class StandAloneNodeCrdtOrSet extends StandAloneExampleBase {
     gossipService.merge(m);
   }
 
+  /**
+   * 添加数据
+   * @param val
+   * @param gossipService
+   */
   private static void addData(String val, GossipManager gossipService) {
     SharedDataMessage m = new SharedDataMessage();
     m.setExpireAt(Long.MAX_VALUE);

@@ -56,6 +56,9 @@ public class GossipCore implements GossipCoreConstants {
   private final GossipManager gossipManager;
   private ConcurrentHashMap<String, LatchAndBase> requests;
   private final ConcurrentHashMap<String, ConcurrentHashMap<String, PerNodeDataMessage>> perNodeData;
+  /**
+   * 共享数据集
+   */
   private final ConcurrentHashMap<String, SharedDataMessage> sharedData;
   private final Meter messageSerdeException;
   private final Meter transmissionException;
@@ -292,6 +295,11 @@ public class GossipCore implements GossipCoreConstants {
           "=======================");
   }
 
+  /**
+   * 合并共享数据集
+   * @param message
+   * @return
+   */
   @SuppressWarnings("rawtypes")
   public Crdt merge(SharedDataMessage message) {
     for (;;){
@@ -304,6 +312,7 @@ public class GossipCore implements GossipCoreConstants {
       copy.setKey(message.getKey());
       copy.setNodeId(message.getNodeId());
       copy.setTimestamp(message.getTimestamp());
+      //合并新久数据集
       @SuppressWarnings("unchecked")
       Crdt merged = ((Crdt) previous.getPayload()).merge((Crdt) message.getPayload());
       copy.setPayload(merged);

@@ -19,6 +19,12 @@ package org.apache.gossip.crdt;
 
 import java.util.Set;
 
+/**
+ * CRDT 数据集
+ * @param <ElementType>
+ * @param <SetType>
+ * @param <R>
+ */
 public interface CrdtSet<ElementType, SetType extends Set<ElementType>, R extends CrdtSet<ElementType, SetType, R>>
 extends Crdt<SetType, R> {
 

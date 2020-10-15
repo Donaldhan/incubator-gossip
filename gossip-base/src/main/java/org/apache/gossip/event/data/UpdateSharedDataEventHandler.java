@@ -20,6 +20,7 @@ package org.apache.gossip.event.data;
 /**
  * Event handler interface for shared data items.
  * Classes which implement this interface get notifications when shared data get changed.
+ * 共享数据集更新事件处理器
  */
 public interface UpdateSharedDataEventHandler {
   /**

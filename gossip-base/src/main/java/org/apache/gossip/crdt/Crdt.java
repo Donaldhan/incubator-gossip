@@ -31,7 +31,9 @@ public interface Crdt<SetType, MergeReturnType extends Crdt<SetType, MergeReturn
   /**
    * Called to self optimize. Some CRDTs may use some mechanism to clean up be 
    * removing obsolete data outside the scope of merging. IE this could clean up 
-   * temporal values, old copies etc. 
+   * temporal values, old copies etc.
+   * 自己优化调用。一些无冲突复制数据类型使用依稀一些机制，清除可以从合并范围内一处的废弃数据。
+   * 比如临时值或旧副本
    * @return the Crdt structure optimized 
    */
   MergeReturnType optimize();

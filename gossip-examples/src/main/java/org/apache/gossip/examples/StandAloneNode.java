@@ -21,6 +21,9 @@ import java.io.IOException;
 
 import org.apache.gossip.manager.GossipManager;
 
+/**
+ * 简单的维护gossip集群的示例
+ */
 public class StandAloneNode extends StandAloneExampleBase {
 
   /**

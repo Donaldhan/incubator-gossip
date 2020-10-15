@@ -13,6 +13,7 @@ For additional information see:
 
 Initial setup - Preconditions
 -----------------------------
+编译安装项目  
 These instructions assume that you are using a Unix-like command line interface; translate as necessary.
 
 Prior to running these examples you will need to have your environment set up to run java and Maven
@@ -41,6 +42,7 @@ When all that is finished are you ready to start running the first example...
 
 Running org.apache.gossip.examples.StandAloneNode
 -------------------------------------------------
+简单gossip网络族示例
 This first example illustrates the basic, underlying, communication layer the sets up and maintains a gossip network cluster.
 
 In the [YouTube video](https://www.youtube.com/watch?v=bZXZrp7yBkw&t=39s) there is a description of
@@ -124,9 +126,10 @@ using control-c, simply re-issue the command to run the node.
 
 Running org.apache.gossip.examples.StandAloneNodeCrdtOrSet
 ----------------------------------------------------------
+基于CRDT模型的示例（无冲突复制数据类型使用场景：状态和数据集）
 This second example illustrates the using the data layer to share structured information: a shared representation of a set
 of strings, and a shared counter. The objects representing those shared values are special cases of a Conflict-free Replicated
-Data Type (hence, CRDT). 
+Data Type (hence, CRDT，无冲突复制数据类型). 
 
 Here is the problem that is solved by these CRDT objects: since each node in a cluster can message any other node in the cluster
 in any order, the messages that reflect the content of data structure can arrive in any order. For example, one node may add an object

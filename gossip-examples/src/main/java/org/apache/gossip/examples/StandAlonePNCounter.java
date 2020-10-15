@@ -43,6 +43,7 @@ public class StandAlonePNCounter extends StandAloneExampleBase {
     System.out.println("********** " + gossipService.findCrdt("myPNCounter"));
   }
 
+  @Override
   boolean processReadLoopInput(String line) {
     char op = line.charAt(0);
     char blank = line.charAt(1);

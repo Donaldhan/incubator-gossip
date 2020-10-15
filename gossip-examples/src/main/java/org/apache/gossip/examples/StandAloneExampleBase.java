@@ -31,6 +31,9 @@ import org.apache.gossip.manager.GossipManager;
 import org.apache.gossip.manager.GossipManagerBuilder;
 
 abstract class StandAloneExampleBase {
+  /**
+   * 控制台出入
+   */
   private String lastInput = "{none}";
 
   private boolean clearTerminalScreen = true;

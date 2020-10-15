@@ -20,13 +20,31 @@ package org.apache.gossip.model;
 import org.apache.gossip.replication.AllReplicable;
 import org.apache.gossip.replication.Replicable;
 
+/**
+ * 共享数据消息
+ */
 public class SharedDataMessage extends Base {
 
+  /**
+   * 节点id
+   */
   private String nodeId;
+  /**
+   * 共享数据key
+   */
   private String key;
+  /**
+   * 共享数据负载
+   */
   private Object payload;
   private Long timestamp;
+  /**
+   * 失效时间
+   */
   private Long expireAt;
+  /**
+   * 复制策略判定器
+   */
   private Replicable<SharedDataMessage> replicable;
 
   public String getNodeId() {

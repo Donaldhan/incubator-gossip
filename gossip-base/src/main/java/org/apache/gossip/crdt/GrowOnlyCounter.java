@@ -23,8 +23,14 @@ import org.apache.gossip.manager.GossipManager;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * 全局计数器
+ */
 public class GrowOnlyCounter implements CrdtCounter<Long, GrowOnlyCounter> {
-  
+
+  /**
+   * node id， 计数器值
+   */
   private final Map<String, Long> counters = new HashMap<>();
   
   GrowOnlyCounter(Map<String, Long> counters) {
@@ -48,7 +54,12 @@ public class GrowOnlyCounter implements CrdtCounter<Long, GrowOnlyCounter> {
   public GrowOnlyCounter(GossipManager manager) {
     counters.put(manager.getMyself().getId(), 0L);
   }
-  
+
+  /**
+   * 合并计数器
+   * @param growOnlyCounter
+   * @param other
+   */
   public GrowOnlyCounter(GrowOnlyCounter growOnlyCounter, GrowOnlyCounter other) {
     counters.putAll(growOnlyCounter.counters);
     for (Map.Entry<String, Long> entry : other.counters.entrySet()) {
@@ -101,9 +112,15 @@ public class GrowOnlyCounter implements CrdtCounter<Long, GrowOnlyCounter> {
   }
   
   public static class Builder {
-    
+
+    /**
+     * 节点ID
+     */
     private final String myId;
-    
+
+    /**
+     * 计数器值
+     */
     private Long counter;
     
     public Builder(GossipManager gossipManager) {

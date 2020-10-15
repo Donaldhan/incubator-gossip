@@ -269,6 +269,11 @@ public abstract class GossipManager {
     gossipCore.addSharedData(message);
   }
 
+  /**
+   * 获取基于CRDT的数据集
+   * @param key
+   * @return
+   */
   @SuppressWarnings("rawtypes")
   public Crdt findCrdt(String key){
     SharedDataMessage l = gossipCore.getSharedData().get(key);
@@ -282,6 +287,11 @@ public abstract class GossipManager {
     }
   }
 
+  /**
+   * 合并共享数据集
+   * @param message
+   * @return
+   */
   @SuppressWarnings("rawtypes")
   public Crdt merge(SharedDataMessage message){
     Objects.nonNull(message.getKey());
