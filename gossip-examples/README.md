@@ -69,7 +69,7 @@ terminal display and resets the cursor to the upper left corner.
 if, for some reason, this is not working in your case, you can add the (optional) flag '-s' to the args in the 
 command line, to suppress this "clear screen" behavior. That is:
 ```
-cd incubator-gossip/gossip-examples
+cd incubator-retired-gossip/gossip-examples
 mvn exec:java -Dexec.mainClass=org.apache.gossip.examples.StandAloneNode -Dexec.args="-s udp://localhost:10000 0 udp://localhost:10000 0"
 ```
 
@@ -89,7 +89,7 @@ changed to reflect the fact that this is a different node
 
 That is:
 ```
-cd incubator-gossip/gossip-examples
+cd incubator-retired-gossip/gossip-examples
 mvn exec:java -Dexec.mainClass=org.apache.gossip.examples.StandAloneNode -Dexec.args="udp://localhost:10001 1 udp://localhost:10000 0"
 ```
 
@@ -102,7 +102,7 @@ Finally, in yet another terminal window, cd to the same folder and enter the the
 2. id for the node - **2**
 
 ```
-cd incubator-gossip/gossip-examples
+cd incubator-retired-gossip/gossip-examples
 mvn exec:java -Dexec.mainClass=org.apache.gossip.examples.StandAloneNode -Dexec.args="udp://localhost:10002 2 udp://localhost:10000 0”
 ```
 

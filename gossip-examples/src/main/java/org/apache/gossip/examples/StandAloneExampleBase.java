@@ -152,10 +152,10 @@ abstract class StandAloneExampleBase {
 
   /**
    * This sets up a single StandAloneNode that starts out listening to itself. The arguments are:
-   * 1. The URI (host and port) for the node - **udp://localhost:10000**
-   * 2. The id for the node - **0**
-   * 3. The URI for a "seed" node - **udp://localhost:10000**
-   * 4. The id for that seed node - **0**
+   * 1. The URI (host and port) for the node - **udp://localhost:10000** 当前节点监听地址
+   * 2. The id for the node - **0**  当前节点id
+   * 3. The URI for a "seed" node - **udp://localhost:10000**  种子节点监听地址
+   * 4. The id for that seed node - **0**  种子节点ip
    * @param args
    */
   void initGossipManager(String[] args) {
