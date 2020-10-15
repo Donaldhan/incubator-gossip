@@ -94,6 +94,17 @@ public abstract class GossipManager {
   private final MessageHandler messageHandler;
   private final LockManager lockManager;
 
+  /**
+   * @param cluster
+   * @param uri
+   * @param id
+   * @param properties  成员属性
+   * @param settings
+   * @param gossipMembers
+   * @param listener
+   * @param registry
+   * @param messageHandler
+   */
   public GossipManager(String cluster,
                        URI uri, String id, Map<String, String> properties, GossipSettings settings,
                        List<Member> gossipMembers, GossipListener listener, MetricRegistry registry,

@@ -19,6 +19,9 @@ package org.apache.gossip.examples;
 
 import java.io.IOException;
 
+/**
+ * 示例运行总入口
+ */
 public class RunStandardExamples {
 
   private static boolean WILL_READ = true;
@@ -43,6 +46,11 @@ public class RunStandardExamples {
     }
   }
 
+  /**
+   * @param exampleNumber
+   * @param channel
+   * @throws IOException
+   */
   private static void runExaple(int exampleNumber, int channel) throws IOException {
     String[] args = stanardArgs(channel, new String[4]);
     if (exampleNumber == 1) {
@@ -61,6 +69,11 @@ public class RunStandardExamples {
     }
   }
 
+  /**
+   * @param channel
+   * @param args
+   * @return
+   */
   private static String[] stanardArgs(int channel, String[] args) {
     // see README.md for examples
     args[0] = "udp://localhost:1000" + channel;
@@ -70,6 +83,11 @@ public class RunStandardExamples {
     return args;
   }
 
+  /**
+   * @param channel
+   * @param args
+   * @return
+   */
   private static String[] extendedArgs(int channel, String[] args) {
     args = stanardArgs(channel, args);
     // see README.md for examples

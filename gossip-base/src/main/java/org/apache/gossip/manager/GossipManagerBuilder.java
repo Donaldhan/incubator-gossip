@@ -39,13 +39,31 @@ public class GossipManagerBuilder {
   }
 
   public static final class ManagerBuilder {
+    /**
+     * 族名
+     */
     private String cluster;
+    /**
+     * 监听地址
+     */
     private URI uri;
+    /**
+     * 节点id
+     */
     private String id;
+    /**
+     * gossip 配置
+     */
     private GossipSettings settings;
+    /**
+     * gossip成员
+     */
     private List<Member> gossipMembers;
     private GossipListener listener;
     private MetricRegistry registry;
+    /**
+     * gossip管理器属性
+     */
     private Map<String,String> properties;
     private MessageHandler messageHandler;
 

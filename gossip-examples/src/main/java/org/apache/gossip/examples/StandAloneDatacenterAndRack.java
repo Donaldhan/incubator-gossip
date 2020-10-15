@@ -30,6 +30,9 @@ import org.apache.gossip.manager.DatacenterRackAwareActiveGossiper;
 import org.apache.gossip.manager.GossipManager;
 import org.apache.gossip.manager.GossipManagerBuilder;
 
+/**
+ * 模拟不同机房或不同机架的数据中心
+ */
 public class StandAloneDatacenterAndRack extends StandAloneExampleBase {
 
   public static void main(String[] args) throws InterruptedException, IOException {
@@ -43,6 +46,15 @@ public class StandAloneDatacenterAndRack extends StandAloneExampleBase {
     initGossipManager(args);
   }
 
+  /**
+   * 1. The URI (host and port) for the node - **udp://localhost:10000**
+   * 2. The id for the node - **0**
+   * 3. The URI for a "seed" node - **udp://localhost:10000**
+   * 4. The id for that seed node - **0**
+   * 5. The data center id - **1**  数据中心id
+   * 6. The rack id - **2** 机架或机房
+   * @param args
+   */
   @Override
   void initGossipManager(String[] args) {
     GossipSettings s = new GossipSettings();

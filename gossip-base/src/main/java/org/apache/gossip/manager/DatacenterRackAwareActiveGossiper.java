@@ -36,15 +36,33 @@ import com.codahale.metrics.MetricRegistry;
  * This implementation controls the rate at which gossip traffic is shared. 
  * There are two constructs Datacenter and Rack. It is assumed that bandwidth and latency is higher
  * in the rack than in the the datacenter. We can adjust the rate at which we send messages to each group.
+ * 以不同的速率向不同的机架或者数据中心发送gossip心跳。
+ * 当前实现控制共享gossip心跳的速率。假设不同机架或机房的延迟和宽带比同一数据中心的高。
+ * 我们仅调整发送每个组的消息速率。
  * 
  */
 public class DatacenterRackAwareActiveGossiper extends AbstractActiveGossiper {
 
+  /**
+   * 数据中心
+   */
   public static final String DATACENTER = "datacenter";
+  /**
+   * 机架，或机房
+   */
   public static final String RACK = "rack";
-  
+
+  /**
+   * 同机架gossip间隔
+   */
   private int sameRackGossipIntervalMs = 100;
+  /**
+   * 同数据中心gossip间隔
+   */
   private int sameDcGossipIntervalMs = 500;
+  /**
+   * 不同数据中心gossip间隔
+   */
   private int differentDatacenterGossipIntervalMs = 1000;
   private int randomDeadMemberSendIntervalMs = 250;
   
@@ -176,39 +194,66 @@ public class DatacenterRackAwareActiveGossiper extends AbstractActiveGossiper {
     return sameDcAndRack;
   }
 
+  /**
+   *
+   */
   private void sendToSameRackMember() {
     LocalMember i = selectPartner(sameRackNodes());
     sendMembershipList(gossipManager.getMyself(), i);
   }
-  
+
+  /**
+   *
+   */
   private void sendToSameRackMemberPerNode() {
     sendPerNodeData(gossipManager.getMyself(), selectPartner(sameRackNodes()));
   }
-  
+
+  /**
+   *
+   */
   private void sendToSameRackShared() {
     sendSharedData(gossipManager.getMyself(), selectPartner(sameRackNodes()));
   }
-  
+
+  /**
+   *
+   */
   private void differentDcMember() {
     sendMembershipList(gossipManager.getMyself(), selectPartner(differentDataCenter()));
   }
-  
+
+  /**
+   *
+   */
   private void differentDcPerNode() {
     sendPerNodeData(gossipManager.getMyself(), selectPartner(differentDataCenter()));
   }
-  
+
+  /**
+   *
+   */
   private void differentDcShared() {
     sendSharedData(gossipManager.getMyself(), selectPartner(differentDataCenter()));
   }
-  
+
+  /**
+   *
+   */
   private void sameDcDiffernetRackMember() {
     sendMembershipList(gossipManager.getMyself(), selectPartner(sameDatacenterDifferentRack()));
   }
-  
+
+  /**
+   *
+   */
   private void sameDcDiffernetRackPerNode() {
     sendPerNodeData(gossipManager.getMyself(), selectPartner(sameDatacenterDifferentRack()));
   }
-  
+
+  /**
+   *
+   */
   private void sameDcDiffernetRackShared() {
     sendSharedData(gossipManager.getMyself(), selectPartner(sameDatacenterDifferentRack()));
   }
