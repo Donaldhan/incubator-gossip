@@ -34,16 +34,29 @@ import java.util.concurrent.TimeUnit;
 public abstract class AbstractTransportManager implements TransportManager {
   
   public static final Logger LOGGER = Logger.getLogger(AbstractTransportManager.class);
-  
+
+  /**
+   * gossip线程池
+   */
   private final ExecutorService gossipThreadExecutor;
+  /**
+   * gossip探活线程线程
+   */
   private final AbstractActiveGossiper activeGossipThread;
+  /**
+   *
+   */
   protected final GossipManager gossipManager;
+  /**
+   *
+   */
   protected final GossipCore gossipCore;
   
   public AbstractTransportManager(GossipManager gossipManager, GossipCore gossipCore) {
     this.gossipManager = gossipManager;
     this.gossipCore = gossipCore;
     gossipThreadExecutor = Executors.newCachedThreadPool();
+    //SimpleActiveGossiper， 创建探活gossip
     activeGossipThread = ReflectionUtils.constructWithReflection(
       gossipManager.getSettings().getActiveGossipClass(),
         new Class<?>[]{

@@ -36,21 +36,35 @@ import java.util.concurrent.atomic.AtomicBoolean;
 /**
  * This class is constructed by reflection in GossipManager.
  * It manages transport (byte read/write) operations over UDP.
+ * 管理基于UDP的数据传输操作
  */
 public class UdpTransportManager extends AbstractTransportManager implements Runnable {
   
   public static final Logger LOGGER = Logger.getLogger(UdpTransportManager.class);
   
-  /** The socket used for the passive thread of the gossip service. */
+  /**
+   *
+   * The socket used for the passive thread of the gossip service.
+   * gossip socket server
+   *  */
   private final DatagramSocket server;
-  
+
+  /**
+   * 获取数据超时时间
+   */
   private final int soTimeout;
   
   private final Thread me;
-  
+
+  /**
+   * 运行状态
+   */
   private final AtomicBoolean keepRunning = new AtomicBoolean(true);
   
-  /** required for reflection to work! */
+  /**
+   * required for reflection to work!
+   * @param gossipManager
+   * @param gossipCore*/
   public UdpTransportManager(GossipManager gossipManager, GossipCore gossipCore) {
     super(gossipManager, gossipCore);
     soTimeout = gossipManager.getSettings().getGossipInterval() * 2;
@@ -73,7 +87,7 @@ public class UdpTransportManager extends AbstractTransportManager implements Run
         try {
           Base message = gossipManager.getProtocolManager().read(buf);
           gossipCore.receive(message);
-          //TODO this is suspect
+          //TODO this is suspect  GossipMemberStateRefresher
           gossipManager.getMemberStateRefresher().run();
         } catch (RuntimeException ex) {//TODO trap json exception
           LOGGER.error("Unable to process message", ex);
@@ -98,6 +112,7 @@ public class UdpTransportManager extends AbstractTransportManager implements Run
 
   /**
    * blocking read a message.
+   * 从缓存区读取消息数据
    * @return buffer of message contents.
    * @throws IOException
    */
@@ -109,6 +124,12 @@ public class UdpTransportManager extends AbstractTransportManager implements Run
     return p.getData();
   }
 
+  /**
+   * 发送字节数据
+   * @param endpoint
+   * @param buf
+   * @throws IOException
+   */
   @Override
   public void send(URI endpoint, byte[] buf) throws IOException {
     // todo: investigate UDP socket reuse. It would save a little setup/teardown time wrt to the local socket.
@@ -127,6 +148,9 @@ public class UdpTransportManager extends AbstractTransportManager implements Run
     }
   }
 
+  /**
+   * 启动endpoint
+   */
   @Override
   public void startEndpoint() {
     me.start();

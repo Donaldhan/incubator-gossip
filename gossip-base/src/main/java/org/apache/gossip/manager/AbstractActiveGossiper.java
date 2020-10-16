@@ -44,12 +44,21 @@ public abstract class AbstractActiveGossiper {
 
   protected static final Logger LOGGER = Logger.getLogger(AbstractActiveGossiper.class);
 
+  /**
+   *
+   */
   protected final GossipManager gossipManager;
+  /**
+   *
+   */
   protected final GossipCore gossipCore;
   private final Histogram sharedDataHistogram;
   private final Histogram sendPerNodeDataHistogram;
   private final Histogram sendMembershipHistogram;
   private final Random random;
+  /**
+   *
+   */
   private final GossipSettings gossipSettings;
 
   public AbstractActiveGossiper(GossipManager gossipManager, GossipCore gossipCore, MetricRegistry registry) {
@@ -70,6 +79,11 @@ public abstract class AbstractActiveGossiper {
 
   }
 
+  /**
+   * 发送关闭消息
+   * @param me
+   * @param target
+   */
   public final void sendShutdownMessage(LocalMember me, LocalMember target){
     if (target == null){
       return;
@@ -80,6 +94,11 @@ public abstract class AbstractActiveGossiper {
     gossipCore.sendOneWay(m, target.getUri());
   }
 
+  /**
+   * 发送贡献该数据
+   * @param me
+   * @param member
+   */
   public final void sendSharedData(LocalMember me, LocalMember member) {
     if (member == null) {
       return;
@@ -93,13 +112,19 @@ public abstract class AbstractActiveGossiper {
     sharedDataHistogram.update(System.currentTimeMillis() - startTime);
   }
 
-  /** Send shared data one entry at a time. */
+  /**
+   * Send shared data one entry at a time.
+   * 发送共享数据
+   * @param me
+   * @param member*/
   private void sendSharedDataInternal(LocalMember me, LocalMember member) {
     for (Entry<String, SharedDataMessage> innerEntry : gossipCore.getSharedData().entrySet()){
       if (innerEntry.getValue().getReplicable() != null && !innerEntry.getValue().getReplicable()
               .shouldReplicate(me, member, innerEntry.getValue())) {
+        //不可复制，则直接do nothing
         continue;
       }
+      //拷贝共享数据
       UdpSharedDataMessage message = new UdpSharedDataMessage();
       message.setUuid(UUID.randomUUID().toString());
       message.setUriFrom(me.getId());
@@ -108,7 +133,11 @@ public abstract class AbstractActiveGossiper {
     }
   }
 
-  /** Send shared data by batching together several entries. */
+  /**
+   * 分批发送贡献数据
+   * Send shared data by batching together several entries.
+   * @param me
+   * @param member*/
   private void sendSharedDataInBulkInternal(LocalMember me, LocalMember member) {
     UdpSharedDataBulkMessage udpMessage = new UdpSharedDataBulkMessage();
     udpMessage.setUuid(UUID.randomUUID().toString());
@@ -118,6 +147,7 @@ public abstract class AbstractActiveGossiper {
               .shouldReplicate(me, member, innerEntry.getValue())) {
         continue;
       }
+      //共享数据消息
       SharedDataMessage message = new SharedDataMessage();
       copySharedDataMessage(innerEntry.getValue(), message);
       udpMessage.addMessage(message);
@@ -133,6 +163,11 @@ public abstract class AbstractActiveGossiper {
     }
   }
 
+  /**
+   * 拷贝共享数据
+   * @param original
+   * @param copy
+   */
   private void copySharedDataMessage(SharedDataMessage original, SharedDataMessage copy) {
     copy.setExpireAt(original.getExpireAt());
     copy.setKey(original.getKey());
@@ -142,6 +177,10 @@ public abstract class AbstractActiveGossiper {
     copy.setReplicable(original.getReplicable());
   }
 
+  /**
+   * @param me
+   * @param member
+   */
   public final void sendPerNodeData(LocalMember me, LocalMember member){
     if (member == null){
       return;
@@ -155,7 +194,10 @@ public abstract class AbstractActiveGossiper {
     sendPerNodeDataHistogram.update(System.currentTimeMillis() - startTime);
   }
 
-  /** Send per node data one entry at a time. */
+  /**
+   * Send per node data one entry at a time. 发送节点的数据
+   * @param me
+   * @param member*/
   private void sendPerNodeDataInternal(LocalMember me, LocalMember member) {
     for (Entry<String, ConcurrentHashMap<String, PerNodeDataMessage>> entry : gossipCore.getPerNodeData().entrySet()){
       for (Entry<String, PerNodeDataMessage> innerEntry : entry.getValue().entrySet()){
@@ -173,7 +215,11 @@ public abstract class AbstractActiveGossiper {
 
   }
 
-  /** Send per node data by batching together several entries. */
+  /**
+   * Send per node data by batching together several entries.
+   * 分批发送节点数据
+   * @param me
+   * @param member*/
   private void sendPerNodeDataInBulkInternal(LocalMember me, LocalMember member) {
     for (Entry<String, ConcurrentHashMap<String, PerNodeDataMessage>> entry : gossipCore.getPerNodeData().entrySet()){
       UdpPerNodeDataBulkMessage udpMessage = new UdpPerNodeDataBulkMessage();
@@ -184,6 +230,7 @@ public abstract class AbstractActiveGossiper {
                 .shouldReplicate(me, member, innerEntry.getValue())) {
           continue;
         }
+        //节点数据消息
         PerNodeDataMessage message = new PerNodeDataMessage();
         copyPerNodeDataMessage(innerEntry.getValue(), message);
         udpMessage.addMessage(message);
@@ -200,6 +247,11 @@ public abstract class AbstractActiveGossiper {
     }
   }
 
+  /**
+   * 拷贝节点消息
+   * @param original
+   * @param copy
+   */
   private void copyPerNodeDataMessage(PerNodeDataMessage original, PerNodeDataMessage copy) {
     copy.setExpireAt(original.getExpireAt());
     copy.setKey(original.getKey());
@@ -211,6 +263,7 @@ public abstract class AbstractActiveGossiper {
 
   /**
    * Performs the sending of the membership list, after we have incremented our own heartbeat.
+   * 在自增心跳之后，发送成员列表
    */
   protected void sendMembershipList(LocalMember me, LocalMember member) {
     if (member == null){
@@ -218,6 +271,7 @@ public abstract class AbstractActiveGossiper {
     }
     long startTime = System.currentTimeMillis();
     me.setHeartbeat(System.nanoTime());
+    //保活gossip消息
     UdpActiveGossipMessage message = new UdpActiveGossipMessage();
     message.setUriFrom(gossipManager.getMyself().getUri().toASCIIString());
     message.setUuid(UUID.randomUUID().toString());
@@ -234,6 +288,11 @@ public abstract class AbstractActiveGossiper {
     sendMembershipHistogram.update(System.currentTimeMillis() - startTime);
   }
 
+  /**
+   * 转换member
+   * @param member
+   * @return
+   */
   protected final Member convert(LocalMember member){
     Member gm = new Member();
     gm.setCluster(member.getClusterName());
@@ -245,7 +304,7 @@ public abstract class AbstractActiveGossiper {
   }
 
   /**
-   *
+   * 返回本地的随机gossip成员
    * @param memberList
    *          An immutable list
    * @return The chosen LocalGossipMember to gossip with.

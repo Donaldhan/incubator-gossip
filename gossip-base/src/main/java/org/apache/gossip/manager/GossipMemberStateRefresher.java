@@ -32,6 +32,9 @@ import java.util.Map.Entry;
 import java.util.concurrent.*;
 import java.util.function.BiFunction;
 
+/**
+ * 成员状态刷新线程
+ */
 public class GossipMemberStateRefresher {
   public static final Logger LOGGER = Logger.getLogger(GossipMemberStateRefresher.class);
 

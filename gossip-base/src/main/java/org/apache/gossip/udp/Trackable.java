@@ -17,14 +17,29 @@
  */
 package org.apache.gossip.udp;
 
+/**
+ * 可追溯消息
+ */
 public interface Trackable {
 
+  /**
+   * @return
+   */
   String getUriFrom();
-  
+
+  /**
+   * @param uriFrom
+   */
   void setUriFrom(String uriFrom);
-  
+
+  /**
+   * @return
+   */
   String getUuid();
-  
+
+  /**
+   * @param uuid
+   */
   void setUuid(String uuid);
   
 }

@@ -49,12 +49,15 @@ public class JacksonProtocolManager implements ProtocolManager {
   private final Meter signed;
   private final Meter unsigned;
   
-  /** required for reflection to work! */
+  /** required for reflection to work!
+   * @param settings
+   * @param id
+   * @param registry*/
   public JacksonProtocolManager(GossipSettings settings, String id, MetricRegistry registry) {
     // set up object mapper.
     objectMapper = buildObjectMapper(settings);
     
-    // set up message signing.
+    // set up message signing. 如果需要加签消息，则加载节点公私钥
     if (settings.isSignMessages()){
       File privateKey = new File(settings.getPathToKeyStore(), id);
       File publicKey = new File(settings.getPathToKeyStore(), id + ".pub");
@@ -82,6 +85,12 @@ public class JacksonProtocolManager implements ProtocolManager {
     unsigned = registry.meter(PassiveGossipConstants.UNSIGNED_MESSAGE);
   }
 
+  /**
+   * 转换消息为字节数组
+   * @param message
+   * @return
+   * @throws IOException
+   */
   @Override
   public byte[] write(Base message) throws IOException {
     byte[] json_bytes;
@@ -96,6 +105,12 @@ public class JacksonProtocolManager implements ProtocolManager {
     return json_bytes;
   }
 
+  /**
+   * 转换字节数组为消息对象
+   * @param buf
+   * @return
+   * @throws IOException
+   */
   @Override
   public Base read(byte[] buf) throws IOException {
     Base activeGossipMessage = objectMapper.readValue(buf, Base.class);

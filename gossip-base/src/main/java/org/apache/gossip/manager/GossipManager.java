@@ -65,6 +65,9 @@ public abstract class GossipManager {
     configure(JsonGenerator.Feature.WRITE_NUMBERS_AS_STRINGS, false);
   }};
 
+  /**
+   * gossip 成员
+   */
   private final ConcurrentSkipListMap<LocalMember, GossipState> members;
   private final LocalMember me;
   /**
@@ -190,13 +193,13 @@ public abstract class GossipManager {
     
     // protocol manager and transport managers are specified in settings.
     // construct them here via reflection.
-    
+    //构建协议管理器，默认为JacksonProtocolManager
     protocolManager = ReflectionUtils.constructWithReflection(
         settings.getProtocolManagerClass(),
         new Class<?>[] { GossipSettings.class, String.class, MetricRegistry.class },
         new Object[] { settings, me.getId(), this.getRegistry() }
     );
-    
+    //transport管理器，默认为UdpTransportManager
     transportManager = ReflectionUtils.constructWithReflection(
         settings.getTransportManagerClass(),
         new Class<?>[] { GossipManager.class, GossipCore.class},

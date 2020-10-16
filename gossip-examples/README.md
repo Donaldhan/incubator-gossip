@@ -271,10 +271,6 @@ takes longer to settle to the correct state then the process in the second termi
 a greater latency in message transmission and is (therefore) more tolerant to delays (and drops) in messaging, taking it
 longer to detect that the killed process is "off line".
 
-# TODO 
-```
-Caused by: java.net.BindException: Address already in use: Cannot bind
-```
 
 
 

@@ -25,6 +25,7 @@ import org.apache.gossip.udp.Trackable;
 public class ResponseHandler implements MessageHandler {
   
   /**
+   * 消息处理器
    * @param gossipCore context.
    * @param gossipManager context.
    * @param base message reference.

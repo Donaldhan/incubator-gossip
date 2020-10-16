@@ -29,6 +29,7 @@ import org.apache.gossip.model.Base;
 public interface Replicable<T extends Base> {
   /**
    * Test for a given data item needs to be replicated.
+   * 判断跟定的数据是否为可重复数据
    * @param me node that the data item is going to transmit from.
    * @param destination target node to replicate.
    * @param message this parameter is currently ignored

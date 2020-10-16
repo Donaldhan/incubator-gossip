@@ -67,7 +67,10 @@ public class GossipSettings {
   // Settings related to lock manager
   private LockManagerSettings lockManagerSettings = LockManagerSettings
           .getLockManagerDefaultSettings();
-  
+
+  /**
+   *是否为批量传输
+   */
   private boolean bulkTransfer = false;
 
   private int bulkTransferSize = StartupSettings.DEFAULT_BULK_TRANSFER_SIZE;

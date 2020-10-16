@@ -24,6 +24,7 @@ import java.util.Map;
 /**
  * The object represents a gossip member with the properties as received from a remote gossip
  * member.
+ * 接收远程带属性的gossip成员的gossip成员
  * 
  */
 public class RemoteMember extends Member {

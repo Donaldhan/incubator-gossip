@@ -35,10 +35,24 @@ import com.codahale.metrics.MetricRegistry;
  */
 public class SimpleActiveGossiper extends AbstractActiveGossiper {
 
+  /**
+   * 调度器
+   */
   private ScheduledExecutorService scheduledExecutorService;
+  /**
+   * 任务队列
+   */
   private final BlockingQueue<Runnable> workQueue;
+  /**
+   * 线程池执行器
+   */
   private ThreadPoolExecutor threadService;
-  
+
+  /**
+   * @param gossipManager
+   * @param gossipCore
+   * @param registry
+   */
   public SimpleActiveGossiper(GossipManager gossipManager, GossipCore gossipCore,
                               MetricRegistry registry) {
     super(gossipManager, gossipCore, registry);
@@ -53,17 +67,21 @@ public class SimpleActiveGossiper extends AbstractActiveGossiper {
     super.init();
     scheduledExecutorService.scheduleAtFixedRate(() -> {
       threadService.execute(() -> {
+        //发送Live成员
         sendToALiveMember();
       });
     }, 0, gossipManager.getSettings().getGossipInterval(), TimeUnit.MILLISECONDS);
     scheduledExecutorService.scheduleAtFixedRate(() -> {
+      //发送Dead成员
       sendToDeadMember();
     }, 0, gossipManager.getSettings().getGossipInterval(), TimeUnit.MILLISECONDS);
     scheduledExecutorService.scheduleAtFixedRate(
+            //发送节点数据
             () -> sendPerNodeData(gossipManager.getMyself(),
                     selectPartner(gossipManager.getLiveMembers())),
             0, gossipManager.getSettings().getGossipInterval(), TimeUnit.MILLISECONDS);
     scheduledExecutorService.scheduleAtFixedRate(
+            //发送共享数据
             () -> sendSharedData(gossipManager.getMyself(),
                     selectPartner(gossipManager.getLiveMembers())),
             0, gossipManager.getSettings().getGossipInterval(), TimeUnit.MILLISECONDS);
@@ -78,6 +96,7 @@ public class SimpleActiveGossiper extends AbstractActiveGossiper {
     } catch (InterruptedException e) {
       LOGGER.debug("Issue during shutdown", e);
     }
+    //发送关闭消息
     sendShutdownMessage();
     threadService.shutdown();
     try {
@@ -87,11 +106,17 @@ public class SimpleActiveGossiper extends AbstractActiveGossiper {
     }
   }
 
+  /**
+   *从当前节点的gossip成员列表中选择一个成员，发送Live节点信息
+   */
   protected void sendToALiveMember(){
     LocalMember member = selectPartner(gossipManager.getLiveMembers());
     sendMembershipList(gossipManager.getMyself(), member);
   }
-  
+
+  /**
+   * 从当前节点的gossip成员列表中选择一个成员，发送Dead节点信息
+   */
   protected void sendToDeadMember(){
     LocalMember member = selectPartner(gossipManager.getDeadMembers());
     sendMembershipList(gossipManager.getMyself(), member);
@@ -99,6 +124,7 @@ public class SimpleActiveGossiper extends AbstractActiveGossiper {
   
   /**
    * sends an optimistic shutdown message to several clusters nodes
+   * 通知族节点，当前节点已关闭
    */
   protected void sendShutdownMessage(){
     List<LocalMember> l = gossipManager.getLiveMembers();

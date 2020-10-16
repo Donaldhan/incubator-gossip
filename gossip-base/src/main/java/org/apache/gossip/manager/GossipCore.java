@@ -44,7 +44,13 @@ import java.util.concurrent.*;
 public class GossipCore implements GossipCoreConstants {
 
   class LatchAndBase {
+    /**
+     * 请求锁
+     */
     private final CountDownLatch latch;
+    /**
+     * 消息
+     */
     private volatile Base base;
     
     LatchAndBase(){
@@ -54,14 +60,26 @@ public class GossipCore implements GossipCoreConstants {
   }
   public static final Logger LOGGER = Logger.getLogger(GossipCore.class);
   private final GossipManager gossipManager;
+  /**
+   * 可追溯的请求
+   */
   private ConcurrentHashMap<String, LatchAndBase> requests;
+  /**
+   * 每个节点的数据
+   */
   private final ConcurrentHashMap<String, ConcurrentHashMap<String, PerNodeDataMessage>> perNodeData;
   /**
    * 共享数据集
    */
   private final ConcurrentHashMap<String, SharedDataMessage> sharedData;
   private final Meter messageSerdeException;
+  /**
+   * 传输异常度量器
+   */
   private final Meter transmissionException;
+  /**
+   * 传输成功度量器
+   */
   private final Meter transmissionSuccess;
   private final DataEventManager eventManager;
   
@@ -149,6 +167,10 @@ public class GossipCore implements GossipCoreConstants {
   public void shutdown(){
   }
 
+  /**
+   * 接受消息
+   * @param base
+   */
   public void receive(Base base) {
     if (!gossipManager.getMessageHandler().invoke(this, gossipManager, base)) {
       LOGGER.warn("received message can not be handled");
@@ -190,6 +212,7 @@ public class GossipCore implements GossipCoreConstants {
     if (message instanceof Trackable){
       t = (Trackable) message;
       latchAndBase = new LatchAndBase();
+      //放入请求集
       requests.put(t.getUuid() + "/" + t.getUriFrom(), latchAndBase);
     } else {
       t = null;
@@ -200,8 +223,10 @@ public class GossipCore implements GossipCoreConstants {
     }
     
     try {
+
       boolean complete = latchAndBase.latch.await(1, TimeUnit.SECONDS);
       if (complete){
+        //等待结果
         return (Response) latchAndBase.base;
       } else{
         return null;
@@ -210,6 +235,7 @@ public class GossipCore implements GossipCoreConstants {
       throw new RuntimeException(e);
     } finally {
       if (latchAndBase != null){
+        //移除高清球
         requests.remove(t.getUuid() + "/" + t.getUriFrom());
       }
     }
@@ -218,6 +244,7 @@ public class GossipCore implements GossipCoreConstants {
   /**
    * Sends a message across the network while blocking. Catches and ignores IOException in transmission. Used
    * when the protocol for the message is not to wait for a response
+   * 发送网络消息。忽略，并捕捉传输的io异常。一般用于不需要回复的协议消息
    * @param message the message to send
    * @param u the uri to send it to
    */
@@ -229,6 +256,11 @@ public class GossipCore implements GossipCoreConstants {
     }
   }
 
+  /**
+   * 处理响应消息
+   * @param k
+   * @param v
+   */
   public void handleResponse(String k, Base v) {
     LatchAndBase latch = requests.get(k);
     latch.base = v;
