@@ -160,7 +160,7 @@ public abstract class GossipManager {
     gossipServiceRunning = new AtomicBoolean(true);
     this.scheduledServiced = Executors.newScheduledThreadPool(1);
     this.registry = registry;
-    //gossip成员持久化器
+    //gossip成员持久器
     this.ringState = new RingStatePersister(GossipManager.buildRingStatePath(this), this);
     //用户数据持久器
     this.userDataState = new UserDataPersister(
