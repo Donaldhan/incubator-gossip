@@ -354,11 +354,19 @@ public class GossipCore implements GossipCoreConstants {
       }
     }
   }
-  
+
+  /**
+   * 注册节点数据订阅器
+   * @param handler
+   */
   void registerPerNodeDataSubscriber(UpdateNodeDataEventHandler handler){
     eventManager.registerPerNodeDataSubscriber(handler);
   }
-  
+
+  /**
+   * 注册共享数据订阅器
+   * @param handler
+   */
   void registerSharedDataSubscriber(UpdateSharedDataEventHandler handler){
     eventManager.registerSharedDataSubscriber(handler);
   }

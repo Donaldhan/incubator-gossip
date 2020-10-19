@@ -85,7 +85,9 @@ public class UdpTransportManager extends AbstractTransportManager implements Run
       try {
         byte[] buf = read();
         try {
+          //读取数据
           Base message = gossipManager.getProtocolManager().read(buf);
+          //处理消息
           gossipCore.receive(message);
           //TODO this is suspect  GossipMemberStateRefresher
           gossipManager.getMemberStateRefresher().run();

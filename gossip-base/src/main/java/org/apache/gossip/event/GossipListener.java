@@ -20,5 +20,10 @@ package org.apache.gossip.event;
 import org.apache.gossip.Member;
 
 public interface GossipListener {
+  /**
+   * gossip监听器
+   * @param member
+   * @param state
+   */
   void gossipEvent(Member member, GossipState state);
 }

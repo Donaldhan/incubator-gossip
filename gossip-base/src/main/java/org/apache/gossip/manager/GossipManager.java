@@ -69,6 +69,9 @@ public abstract class GossipManager {
    * gossip 成员
    */
   private final ConcurrentSkipListMap<LocalMember, GossipState> members;
+  /**
+   * 当前节点信息
+   */
   private final LocalMember me;
   /**
    * gossip协议配置
@@ -87,13 +90,31 @@ public abstract class GossipManager {
   
   private final GossipCore gossipCore;
   private final DataReaper dataReaper;
+  /**
+   * 时钟
+   */
   private final Clock clock;
+  /**
+   * 调度器
+   */
   private final ScheduledExecutorService scheduledServiced;
   private final MetricRegistry registry;
+  /**
+   * 节点gossip成员持久器
+   */
   private final RingStatePersister ringState;
+  /**
+   * 用户数据持久器
+   */
   private final UserDataPersister userDataState;
+  /**
+   * 成员状态刷新器
+   */
   private final GossipMemberStateRefresher memberStateRefresher;
-  
+
+  /**
+   * 消息处理器
+   */
   private final MessageHandler messageHandler;
   private final LockManager lockManager;
 
@@ -114,8 +135,9 @@ public abstract class GossipManager {
                        MessageHandler messageHandler) {
     this.settings = settings;
     this.messageHandler = messageHandler;
-
+    //创建系统时钟
     clock = new SystemClock();
+    //本地gossip成员
     me = new LocalMember(cluster, uri, id, clock.nanoTime(), properties,
             settings.getWindowSize(), settings.getMinimumSamples(), settings.getDistribution());
     gossipCore = new GossipCore(this, registry);
@@ -135,13 +157,18 @@ public abstract class GossipManager {
     gossipServiceRunning = new AtomicBoolean(true);
     this.scheduledServiced = Executors.newScheduledThreadPool(1);
     this.registry = registry;
+    //gossip成员持久化器
     this.ringState = new RingStatePersister(GossipManager.buildRingStatePath(this), this);
+    //用户数据持久器
     this.userDataState = new UserDataPersister(
         gossipCore,
         GossipManager.buildPerNodeDataPath(this),
         GossipManager.buildSharedDataPath(this));
+    //gossip成员状态刷新器
     this.memberStateRefresher = new GossipMemberStateRefresher(members, settings, listener, this::findPerNodeGossipData);
+    //加载节点gossip成员
     readSavedRingState();
+    //加载节点及共享数据
     readSavedDataState();
   }
 
@@ -212,15 +239,21 @@ public abstract class GossipManager {
     
     dataReaper.init();
     if (settings.isPersistRingState()) {
+      //调度持久化Ring状态
       scheduledServiced.scheduleAtFixedRate(ringState, 60, 60, TimeUnit.SECONDS);
     }
     if (settings.isPersistDataState()) {
+      //调度用户数据状态持久化
       scheduledServiced.scheduleAtFixedRate(userDataState, 60, 60, TimeUnit.SECONDS);
     }
+    //初始化成员状态刷新器
     memberStateRefresher.init();
     LOGGER.debug("The GossipManager is started.");
   }
-  
+
+  /**
+   * 从磁盘读节点gossip成员
+   */
   private void readSavedRingState() {
     if (settings.isPersistRingState()) {
       for (LocalMember l : ringState.readFromDisk()) {
@@ -233,6 +266,9 @@ public abstract class GossipManager {
     }
   }
 
+  /**
+   * 从磁盘加载节点数据，及共享数据
+   */
   private void readSavedDataState() {
     if (settings.isPersistDataState()) {
       for (Entry<String, ConcurrentHashMap<String, PerNodeDataMessage>> l : userDataState.readPerNodeFromDisk().entrySet()) {
@@ -318,6 +354,12 @@ public abstract class GossipManager {
     return gossipCore.merge(message);
   }
 
+  /**
+   * 获取节点数据
+   * @param nodeId
+   * @param key
+   * @return
+   */
   public PerNodeDataMessage findPerNodeGossipData(String nodeId, String key){
     ConcurrentHashMap<String, PerNodeDataMessage> j = gossipCore.getPerNodeData().get(nodeId);
     if (j == null){
@@ -327,6 +369,7 @@ public abstract class GossipManager {
       if (l == null){
         return null;
       }
+      //已过期
       if (l.getExpireAt() != null && l.getExpireAt() < clock.currentTimeMillis()) {
         return null;
       }
@@ -379,17 +422,32 @@ public abstract class GossipManager {
   }
   
   // todo: consider making these path methods part of GossipSettings
-  
+
+  /**
+   * 构建ring状态路径
+   * @param manager
+   * @return
+   */
   public static File buildRingStatePath(GossipManager manager) {
     return new File(manager.getSettings().getPathToRingState(), "ringstate." + manager.getMyself().getClusterName() + "."
         + manager.getMyself().getId() + ".json");
   }
-  
+
+  /**
+   * 构建共享数据路径
+   * @param manager
+   * @return
+   */
   public static File buildSharedDataPath(GossipManager manager){
     return new File(manager.getSettings().getPathToDataState(), "shareddata."
             + manager.getMyself().getClusterName() + "." + manager.getMyself().getId() + ".json");
   }
-  
+
+  /**
+   * 构建节点数据路径
+   * @param manager
+   * @return
+   */
   public static File buildPerNodeDataPath(GossipManager manager) {
     return new File(manager.getSettings().getPathToDataState(), "pernodedata."
             + manager.getMyself().getClusterName() + "." + manager.getMyself().getId() + ".json");

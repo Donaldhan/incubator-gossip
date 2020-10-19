@@ -29,9 +29,15 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.gossip.LocalMember;
 import org.apache.log4j.Logger;
 
+/**
+ * Gossip成员状态持久器
+ */
 public class RingStatePersister implements Runnable {
 
   private static final Logger LOGGER = Logger.getLogger(RingStatePersister.class);
+  /**
+   *
+   */
   private final File path;
   // NOTE: this is a different instance than what gets used for message marshalling.
   private final ObjectMapper objectMapper;
@@ -47,7 +53,10 @@ public class RingStatePersister implements Runnable {
   public void run() {
     writeToDisk();
   }
-  
+
+  /**
+   * 持久化到磁盘
+   */
   void writeToDisk() {
     NavigableSet<LocalMember> i = manager.getMembers().keySet();
     try (FileOutputStream fos = new FileOutputStream(path)){
@@ -57,6 +66,10 @@ public class RingStatePersister implements Runnable {
     }
   }
 
+  /**
+   * 从磁盘读取数据
+   * @return
+   */
   @SuppressWarnings("unchecked")
   List<LocalMember> readFromDisk() {
     if (!path.exists()) {

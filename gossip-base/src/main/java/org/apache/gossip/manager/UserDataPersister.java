@@ -31,9 +31,15 @@ import org.apache.log4j.Logger;
 public class UserDataPersister implements Runnable {
   
   private static final Logger LOGGER = Logger.getLogger(UserDataPersister.class);
-  private final GossipCore gossipCore; 
-  
+  private final GossipCore gossipCore;
+
+  /**
+   * 节点数据文件
+   */
   private final File perNodePath;
+  /**
+   * 节点共享数据文件
+   */
   private final File sharedPath;
   private final ObjectMapper objectMapper;
   
@@ -43,7 +49,11 @@ public class UserDataPersister implements Runnable {
     this.perNodePath = perNodePath;
     this.sharedPath = sharedPath;
   }
-  
+
+  /**
+   * 从磁盘加载节点数据
+   * @return
+   */
   @SuppressWarnings("unchecked")
   ConcurrentHashMap<String, ConcurrentHashMap<String, PerNodeDataMessage>> readPerNodeFromDisk(){
     if (!perNodePath.exists()) {
@@ -56,7 +66,10 @@ public class UserDataPersister implements Runnable {
     }
     return new ConcurrentHashMap<String, ConcurrentHashMap<String, PerNodeDataMessage>>();
   }
-  
+
+  /**
+   *
+   */
   void writePerNodeToDisk(){
     try (FileOutputStream fos = new FileOutputStream(perNodePath)){
       objectMapper.writeValue(fos, gossipCore.getPerNodeData());
@@ -73,6 +86,10 @@ public class UserDataPersister implements Runnable {
     }
   }
 
+  /**
+   * 从磁盘加载共享数据
+   * @return
+   */
   @SuppressWarnings("unchecked")
   ConcurrentHashMap<String, SharedDataMessage> readSharedDataFromDisk(){
     if (!sharedPath.exists()) {

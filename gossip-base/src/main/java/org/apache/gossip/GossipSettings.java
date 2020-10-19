@@ -31,7 +31,7 @@ public class GossipSettings {
   /** Time between gossip'ing in ms. Default is 1 second. gossip间隔*/
   private int gossipInterval = 10;
 
-  /** Time between cleanups in ms. Default is 10 seconds. */
+  /** Time between cleanups in ms. Default is 10 seconds. 清除探活计时器间隔 */
   private int cleanupInterval = 5000;
 
   /** the minimum samples needed before reporting a result */
@@ -40,7 +40,7 @@ public class GossipSettings {
   /** the number of samples to keep per host 保活每个host的采样数量*/
   private int windowSize = 5000;
   
-  /** the threshold for the detector */
+  /** the threshold for the detector 存活探测评判阈值 */
   private double convictThreshold = 10;
   
   private String distribution = "normal";
@@ -51,17 +51,32 @@ public class GossipSettings {
   private String protocolManagerClass = "org.apache.gossip.protocol.json.JacksonProtocolManager";
   
   private Map<String,String> activeGossipProperties = new HashMap<>();
-  
+
+  /**
+   * Ring状态路径
+   */
   private String pathToRingState = "./";
-  
+
+  /**
+   * 是否持久化节点gossip成员
+   */
   private boolean persistRingState = true;
-  
+
+  /**
+   * 数据状态路径
+   */
   private String pathToDataState = "./";
-  
+
+  /**
+   * 是否持久化数据
+   */
   private boolean persistDataState = true;
   
   private String pathToKeyStore = "./keys";
-  
+
+  /**
+   * 是否加密消息
+   */
   private boolean signMessages = false;
 
   // Settings related to lock manager

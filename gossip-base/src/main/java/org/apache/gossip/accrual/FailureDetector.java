@@ -31,6 +31,9 @@ public class FailureDetector {
   public static final Logger LOGGER = Logger.getLogger(FailureDetector.class);
   private final DescriptiveStatistics descriptiveStatistics;
   private final long minimumSamples;
+  /**
+   * 上次心跳时间
+   */
   private volatile long latestHeartbeatMs = -1;
   private final String distribution;
 
@@ -56,6 +59,11 @@ public class FailureDetector {
     latestHeartbeatMs = now;
   }
 
+  /**
+   * 根据统计算法，计算节点存活的时间间隔
+   * @param now
+   * @return
+   */
   public synchronized Double computePhiMeasure(long now) {
     if (latestHeartbeatMs == -1 || descriptiveStatistics.getN() < minimumSamples) {
       return null;
@@ -64,10 +72,12 @@ public class FailureDetector {
     try {
       double probability;
       if (distribution.equals("normal")) {
+        //标准统计，高斯分布
         double standardDeviation = descriptiveStatistics.getStandardDeviation();
         standardDeviation = standardDeviation < 0.1 ? 0.1 : standardDeviation;
         probability = new NormalDistributionImpl(descriptiveStatistics.getMean(), standardDeviation).cumulativeProbability(delta);
       } else {
+        //指数标准统计
         probability = new ExponentialDistributionImpl(descriptiveStatistics.getMean()).cumulativeProbability(delta);
       }
       final double eps = 1e-12;

@@ -38,13 +38,34 @@ import java.util.function.BiFunction;
 public class GossipMemberStateRefresher {
   public static final Logger LOGGER = Logger.getLogger(GossipMemberStateRefresher.class);
 
+  /**
+   * gossip成员
+   */
   private final Map<LocalMember, GossipState> members;
+  /**
+   * gossip配置
+   */
   private final GossipSettings settings;
+  /**
+   * gossip监听器
+   */
   private final List<GossipListener> listeners = new CopyOnWriteArrayList<>();
+  /**
+   * 系统时钟
+   */
   private final Clock clock;
   private final BiFunction<String, String, PerNodeDataMessage> findPerNodeGossipData;
+  /**
+   * 监听器执行线程
+   */
   private final ExecutorService listenerExecutor;
+  /**
+   * 条赌气
+   */
   private final ScheduledExecutorService scheduledExecutor;
+  /**
+   * 任务队列
+   */
   private final BlockingQueue<Runnable> workQueue;
 
   public GossipMemberStateRefresher(Map<LocalMember, GossipState> members, GossipSettings settings,
@@ -61,10 +82,16 @@ public class GossipMemberStateRefresher {
     scheduledExecutor = Executors.newScheduledThreadPool(1);
   }
 
+  /**
+   * 调度成员状态刷新器
+   */
   public void init() {
     scheduledExecutor.scheduleAtFixedRate(() -> run(), 0, 100, TimeUnit.MILLISECONDS);
   }
 
+  /**
+   *
+   */
   public void run() {
     try {
       runOnce();
@@ -73,6 +100,9 @@ public class GossipMemberStateRefresher {
     }
   }
 
+  /**
+   * gossip成员状态探测
+   */
   public void runOnce() {
     for (Entry<LocalMember, GossipState> entry : members.entrySet()) {
       boolean userDown = processOptimisticShutdown(entry);
@@ -81,7 +111,7 @@ public class GossipMemberStateRefresher {
 
       Double phiMeasure = entry.getKey().detect(clock.nanoTime());
       GossipState requiredState;
-
+      //根据探测结果，判断节点状态
       if (phiMeasure != null) {
         requiredState = calcRequiredState(phiMeasure);
       } else {
@@ -90,23 +120,36 @@ public class GossipMemberStateRefresher {
 
       if (entry.getValue() != requiredState) {
         members.put(entry.getKey(), requiredState);
-        /* Call listeners asynchronously */
+        /* Call listeners asynchronously 异步触发节点状态监听器*/
         for (GossipListener listener: listeners)
           listenerExecutor.execute(() -> listener.gossipEvent(entry.getKey(), requiredState));
       }
     }
   }
 
+  /**
+   *
+   * @param phiMeasure
+   * @return
+   */
   public GossipState calcRequiredState(Double phiMeasure) {
+    //如果探测节点存活的时间间隔大于阈值，则节点down
     if (phiMeasure > settings.getConvictThreshold())
       return GossipState.DOWN;
     else
       return GossipState.UP;
   }
 
+  /**
+   * 首次探活状态
+   * @param member
+   * @param state
+   * @return
+   */
   public GossipState calcRequiredStateCleanupInterval(LocalMember member, GossipState state) {
     long now = clock.nanoTime();
     long nowInMillis = TimeUnit.MILLISECONDS.convert(now, TimeUnit.NANOSECONDS);
+    //如果当前时间减去清理时间间隔，大于成员的心跳时间，则DOWN
     if (nowInMillis - settings.getCleanupInterval() > member.getHeartbeat()) {
       return GossipState.DOWN;
     } else {
@@ -117,19 +160,22 @@ public class GossipMemberStateRefresher {
   /**
    * If we have a special key the per-node data that means that the node has sent us
    * a pre-emptive shutdown message. We process this so node is seen down sooner
-   *
+   * 预处理节点状态
    * @param l member to consider
    * @return true if node forced down
    */
   public boolean processOptimisticShutdown(Entry<LocalMember, GossipState> l) {
+    //获取节点宕机消息
     PerNodeDataMessage m = findPerNodeGossipData.apply(l.getKey().getId(), ShutdownMessage.PER_NODE_KEY);
     if (m == null) {
       return false;
     }
     ShutdownMessage s = (ShutdownMessage) m.getPayload();
+    //如果节点宕机时间大于当前心跳时间
     if (s.getShutdownAtNanos() > l.getKey().getHeartbeat()) {
       members.put(l.getKey(), GossipState.DOWN);
       if (l.getValue() == GossipState.UP) {
+        //如果状态变化，则通知监听器
         for (GossipListener listener: listeners)
           listenerExecutor.execute(() -> listener.gossipEvent(l.getKey(), GossipState.DOWN));
       }
@@ -138,10 +184,17 @@ public class GossipMemberStateRefresher {
     return false;
   }
 
+  /**
+   * 注解监听器
+   * @param listener
+   */
   public void register(GossipListener listener) {
     listeners.add(listener);
   }
 
+  /**
+   * 关闭gossip成员刷新器
+   */
   public void shutdown() {
     scheduledExecutor.shutdown();
     try {

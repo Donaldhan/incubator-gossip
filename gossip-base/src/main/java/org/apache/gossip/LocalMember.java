@@ -53,7 +53,12 @@ public class LocalMember extends Member {
   public void recordHeartbeat(long now){
     detector.recordHeartbeat(now);
   }
-  
+
+  /**
+   * 探测节点存活状态
+   * @param now
+   * @return
+   */
   public Double detect(long now) {
     return detector.computePhiMeasure(now);
   }

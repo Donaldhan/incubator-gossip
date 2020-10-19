@@ -32,7 +32,7 @@ public abstract class Member implements Comparable<Member> {
   protected URI uri;
 
   /**
-   *
+   * 心跳时间
    */
   protected volatile long heartbeat;
 

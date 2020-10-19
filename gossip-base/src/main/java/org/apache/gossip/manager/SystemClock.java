@@ -17,6 +17,9 @@
  */
 package org.apache.gossip.manager;
 
+/**
+ * 系统时钟
+ */
 public class SystemClock implements Clock {
 
   @Override

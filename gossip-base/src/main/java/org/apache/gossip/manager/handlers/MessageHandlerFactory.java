@@ -26,6 +26,10 @@ import java.util.Arrays;
 
 public class MessageHandlerFactory {
 
+  /**
+   * 响应消息处理器，宕机消息处理，节点数据消息，共享数据消息，保活消息，批量节点数据消息，批量节点共享数据。
+   * @return
+   */
   public static MessageHandler defaultHandler() {
     return concurrentHandler(
         new TypedMessageHandler(Response.class, new ResponseHandler()),
@@ -38,6 +42,10 @@ public class MessageHandlerFactory {
     );
   }
 
+  /**
+   * @param handlers
+   * @return
+   */
   public static MessageHandler concurrentHandler(MessageHandler... handlers) {
     if (handlers == null)
       throw new NullPointerException("handlers cannot be null");
@@ -48,6 +56,7 @@ public class MessageHandlerFactory {
       @Override public boolean invoke(GossipCore gossipCore, GossipManager gossipManager,
               Base base) {
         // return true if at least one of the component handlers return true.
+        //处理消息
         return Arrays.asList(handlers).stream()
                 .filter((mi) -> mi.invoke(gossipCore, gossipManager, base)).count() > 0;
       }
