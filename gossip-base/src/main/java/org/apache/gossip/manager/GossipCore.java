@@ -97,6 +97,10 @@ public class GossipCore implements GossipCoreConstants {
     transmissionSuccess = metrics.meter(MESSAGE_TRANSMISSION_SUCCESS);
   }
 
+  /**
+   * 添加共享数据
+   * @param message
+   */
   @SuppressWarnings({ "unchecked", "rawtypes" })
   public void addSharedData(SharedDataMessage message) {
     while (true){
@@ -106,6 +110,7 @@ public class GossipCore implements GossipCoreConstants {
         return;
       }
       if (message.getPayload() instanceof Crdt){
+        //合并共享数据
         SharedDataMessage merged = new SharedDataMessage();
         merged.setExpireAt(message.getExpireAt());
         merged.setKey(message.getKey());
@@ -122,6 +127,7 @@ public class GossipCore implements GossipCoreConstants {
           return;
         }
       } else {
+        //非CRDT数据，已最新数据为准
         if (previous.getTimestamp() < message.getTimestamp()){
           boolean result = sharedData.replace(message.getKey(), previous, message);
           if (result){
@@ -135,16 +141,24 @@ public class GossipCore implements GossipCoreConstants {
     }
   }
 
+  /**
+   * @param message
+   */
   public void addPerNodeData(PerNodeDataMessage message){
     ConcurrentHashMap<String,PerNodeDataMessage> nodeMap = new ConcurrentHashMap<>();
     nodeMap.put(message.getKey(), message);
+    //加入到节点数据集
     nodeMap = perNodeData.putIfAbsent(message.getNodeId(), nodeMap);
     if (nodeMap != null){
+      //针对节点数据集已经存在的情况
       PerNodeDataMessage current = nodeMap.get(message.getKey());
       if (current == null){
+        //重试
         nodeMap.putIfAbsent(message.getKey(), message);
+        //通知节点数据事件
         eventManager.notifyPerNodeData(message.getNodeId(), message.getKey(), message.getPayload(), null);
       } else {
+        //已最新更新消息
         if (current.getTimestamp() < message.getTimestamp()){
           nodeMap.replace(message.getKey(), current, message);
           eventManager.notifyPerNodeData(message.getNodeId(), message.getKey(), message.getPayload(),
@@ -201,6 +215,11 @@ public class GossipCore implements GossipCoreConstants {
     }
   }
 
+  /**
+   * @param message
+   * @param uri
+   * @return
+   */
   public Response send(Base message, URI uri){
     if (LOGGER.isDebugEnabled()){
       LOGGER.debug("Sending " + message);

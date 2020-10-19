@@ -33,6 +33,7 @@ public class PerNodeDataMessageHandler implements MessageHandler {
   @Override
   public boolean invoke(GossipCore gossipCore, GossipManager gossipManager, Base base) {
     UdpPerNodeDataMessage message = (UdpPerNodeDataMessage) base;
+    //添加节点数据消息
     gossipCore.addPerNodeData(message);
     return true;
   }

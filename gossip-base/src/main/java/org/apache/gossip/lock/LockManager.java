@@ -44,6 +44,9 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
+/**
+ * 锁管理器
+ */
 public class LockManager {
 
   public static final Logger LOGGER = Logger.getLogger(LockManager.class);
@@ -77,6 +80,10 @@ public class LockManager {
             TimeUnit.MILLISECONDS);
   }
 
+  /**
+   * @param key
+   * @throws VoteFailedException
+   */
   public void acquireSharedDataLock(String key) throws VoteFailedException {
     final Timer.Context context = lockTimeMetric.time();
     gossipManager.merge(generateLockMessage(key));
@@ -136,7 +143,11 @@ public class LockManager {
     }
   }
 
-  // Generate Crdt lock message for voting
+  /**
+   *  Generate Crdt lock message for voting
+   * @param key
+   * @return
+   */
   private SharedDataMessage generateLockMessage(String key) {
     VoteCandidate voteCandidate = new VoteCandidate(gossipManager.getMyself().getId(), key,
             new ConcurrentHashMap<>());
@@ -155,7 +166,9 @@ public class LockManager {
     return lockMessage;
   }
 
-  // This method will run periodically to vote the other nodes
+  /**
+   * This method will run periodically to vote the other nodes
+   */
   private void updateVotes() {
     for (String lockKey : lockKeys) {
       SharedDataMessage message = gossipManager.findSharedGossipData(lockKey);
@@ -189,7 +202,12 @@ public class LockManager {
     }
   }
 
-  // Return true if every node has a vote from given node id.
+  /**
+   *  Return true if every node has a vote from given node id.
+   * @param nodeId
+   * @param voteCandidates
+   * @return
+   */
   private boolean isVotedToAll(String nodeId, final Map<String, VoteCandidate> voteCandidates) {
     int voteCount = 0;
     for (VoteCandidate voteCandidate : voteCandidates.values()) {
@@ -200,7 +218,11 @@ public class LockManager {
     return voteCount == voteCandidates.size();
   }
 
-  // Returns true if there is a deadlock for given vote candidates
+  /**
+   * Returns true if there is a deadlock for given vote candidates
+   * @param voteCandidates
+   * @return
+   */
   private boolean isDeadLock(final Map<String, VoteCandidate> voteCandidates) {
     boolean result = true;
     int numberOfLiveNodes;
@@ -219,7 +241,10 @@ public class LockManager {
     return result;
   }
 
-  // Prevent the deadlock by giving up the votes
+  /**
+   * Prevent the deadlock by giving up the votes
+   * @param voteCandidates
+   */
   private void preventDeadLock(Map<String, VoteCandidate> voteCandidates) {
     String myNodeId = gossipManager.getMyself().getId();
     VoteCandidate myResults = voteCandidates.get(myNodeId);
@@ -256,6 +281,11 @@ public class LockManager {
     }
   }
 
+  /**
+   * @param nodeId
+   * @param voteCandidates
+   * @return
+   */
   private String getVotedCandidateNodeId(String nodeId,
           final Map<String, VoteCandidate> voteCandidates) {
     for (VoteCandidate voteCandidate : voteCandidates.values()) {
@@ -267,7 +297,11 @@ public class LockManager {
     return null;
   }
 
-  // Return true if the given candidate has passed the vote
+  /**
+   * Return true if the given candidate has passed the vote
+   * @param voteCandidate
+   * @return
+   */
   private boolean isVoteSuccess(VoteCandidate voteCandidate) {
     Set<String> liveNodes = new HashSet<>();
     int voteCount = 0;

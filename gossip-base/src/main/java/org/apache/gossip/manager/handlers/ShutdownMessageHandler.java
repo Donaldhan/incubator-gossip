@@ -34,12 +34,14 @@ public class ShutdownMessageHandler implements MessageHandler {
   @Override
   public boolean invoke(GossipCore gossipCore, GossipManager gossipManager, Base base) {
     ShutdownMessage s = (ShutdownMessage) base;
+    //转换宕机下消息，为节点数据消息
     PerNodeDataMessage m = new PerNodeDataMessage();
     m.setKey(ShutdownMessage.PER_NODE_KEY);
     m.setNodeId(s.getNodeId());
     m.setPayload(base);
     m.setTimestamp(System.currentTimeMillis());
     m.setExpireAt(System.currentTimeMillis() + 30L * 1000L);
+    //添加节点数据消息
     gossipCore.addPerNodeData(m);
     return true;
   }

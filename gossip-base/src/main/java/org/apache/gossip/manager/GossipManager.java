@@ -77,6 +77,9 @@ public abstract class GossipManager {
    * gossip协议配置
    */
   private final GossipSettings settings;
+  /**
+   * gossip服务运行状态
+   */
   private final AtomicBoolean gossipServiceRunning;
 
   /**
@@ -452,11 +455,17 @@ public abstract class GossipManager {
     return new File(manager.getSettings().getPathToDataState(), "pernodedata."
             + manager.getMyself().getClusterName() + "." + manager.getMyself().getId() + ".json");
   }
-  
+
+  /**
+   * @param handler
+   */
   public void registerPerNodeDataSubscriber(UpdateNodeDataEventHandler handler){
     gossipCore.registerPerNodeDataSubscriber(handler);
   }
-  
+
+  /**
+   * @param handler
+   */
   public void registerSharedDataSubscriber(UpdateSharedDataEventHandler handler){
     gossipCore.registerSharedDataSubscriber(handler);
   }

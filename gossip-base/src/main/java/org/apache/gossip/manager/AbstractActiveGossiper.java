@@ -95,7 +95,7 @@ public abstract class AbstractActiveGossiper {
   }
 
   /**
-   * 发送贡献该数据
+   * 发送共享该数据
    * @param me
    * @param member
    */
@@ -134,7 +134,7 @@ public abstract class AbstractActiveGossiper {
   }
 
   /**
-   * 分批发送贡献数据
+   * 分批发送共享数据
    * Send shared data by batching together several entries.
    * @param me
    * @param member*/

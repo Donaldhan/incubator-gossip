@@ -33,6 +33,7 @@ public class SharedDataMessageHandler implements MessageHandler{
   @Override
   public boolean invoke(GossipCore gossipCore, GossipManager gossipManager, Base base) {
     UdpSharedDataMessage message = (UdpSharedDataMessage) base;
+    //添加共享数据
     gossipCore.addSharedData(message);
     return true;
   }

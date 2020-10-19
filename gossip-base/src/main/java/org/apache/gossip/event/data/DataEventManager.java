@@ -28,6 +28,9 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
+/**
+ * 数据事件管理器
+ */
 public class DataEventManager {
   
   private final List<UpdateNodeDataEventHandler> perNodeDataHandlers;
@@ -63,18 +66,35 @@ public class DataEventManager {
             (Gauge<Integer>) () -> sharedDataHandlerQueue.size());
     
   }
-  
+
+  /**
+   * 通知共享数据
+   * @param key
+   * @param newValue
+   * @param oldValue
+   */
   public void notifySharedData(final String key, final Object newValue, final Object oldValue) {
     sharedDataHandlers.forEach(handler -> sharedDataEventExecutor
             .execute(() -> handler.onUpdate(key, oldValue, newValue)));
   }
-  
+
+  /**
+   * 通知节点数据
+   * @param nodeId
+   * @param key
+   * @param newValue
+   * @param oldValue
+   */
   public void notifyPerNodeData(final String nodeId, final String key, final Object newValue,
           final Object oldValue) {
     perNodeDataHandlers.forEach(handler -> perNodeDataEventExecutor
             .execute(() -> handler.onUpdate(nodeId, key, oldValue, newValue)));
   }
-  
+
+  /**
+   * 注册节点数据订阅器
+   * @param handler
+   */
   public void registerPerNodeDataSubscriber(UpdateNodeDataEventHandler handler) {
     perNodeDataHandlers.add(handler);
   }
@@ -86,7 +106,11 @@ public class DataEventManager {
   public int getPerNodeSubscribersSize() {
     return perNodeDataHandlers.size();
   }
-  
+
+  /**
+   * 注解共享数据订阅器
+   * @param handler
+   */
   public void registerSharedDataSubscriber(UpdateSharedDataEventHandler handler) {
     sharedDataHandlers.add(handler);
   }
