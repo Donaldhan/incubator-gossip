@@ -28,9 +28,13 @@ import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * CRDT which used for distribute a votes for a given key.
+ * 基于CRDT的分布式投票key
  */
 public class MajorityVote implements Crdt<Map<String, VoteCandidate>, MajorityVote> {
 
+  /**
+   * <节点id，候选投注信息>
+   */
   private final Map<String, VoteCandidate> voteCandidates = new ConcurrentHashMap<>();
 
   public MajorityVote(Map<String, VoteCandidate> voteCandidateMap) {
@@ -42,9 +46,11 @@ public class MajorityVote implements Crdt<Map<String, VoteCandidate>, MajorityVo
     Map<String, VoteCandidate> mergedCandidates = new ConcurrentHashMap<>();
     Set<String> firstKeySet = this.voteCandidates.keySet();
     Set<String> secondKeySet = other.voteCandidates.keySet();
+    //获取相同候选者交集
     Set<String> sameCandidatesSet = getIntersection(firstKeySet, secondKeySet);
+    //获取并集
     Set<String> differentCandidatesSet = getIntersectionCompliment(firstKeySet, secondKeySet);
-    // Merge different vote candidates by combining votes
+    // Merge different vote candidates by combining votes， 合并不同的投票
     for (String differentCandidateId : differentCandidatesSet) {
       if (this.voteCandidates.containsKey(differentCandidateId)) {
         mergedCandidates.put(differentCandidateId, this.voteCandidates.get(differentCandidateId));
@@ -52,7 +58,7 @@ public class MajorityVote implements Crdt<Map<String, VoteCandidate>, MajorityVo
         mergedCandidates.put(differentCandidateId, other.voteCandidates.get(differentCandidateId));
       }
     }
-    // Merge votes for the same candidate
+    // Merge votes for the same candidate， 合并相同的交集
     for (String sameCandidateId : sameCandidatesSet) {
       if (this.voteCandidates.containsKey(sameCandidateId) && other.voteCandidates
               .containsKey(sameCandidateId)) {
@@ -65,16 +71,23 @@ public class MajorityVote implements Crdt<Map<String, VoteCandidate>, MajorityVo
     return new MajorityVote(mergedCandidates);
   }
 
-  // Merge different votes for same candidate
+  /**
+   * Merge different votes for same candidate
+   * @param firstCandidate
+   * @param secondCandidate
+   * @return
+   */
   private VoteCandidate mergeCandidate(VoteCandidate firstCandidate,
           VoteCandidate secondCandidate) {
     VoteCandidate mergeResult = new VoteCandidate(firstCandidate.getCandidateNodeId(),
             firstCandidate.getVotingKey(), new ConcurrentHashMap<>());
     Set<String> firstKeySet = firstCandidate.getVotes().keySet();
     Set<String> secondKeySet = secondCandidate.getVotes().keySet();
+    //获取交集
     Set<String> sameVoteNodeSet = getIntersection(firstKeySet, secondKeySet);
+    //获取并集
     Set<String> differentVoteNodeSet = getIntersectionCompliment(firstKeySet, secondKeySet);
-    // Merge different voters by combining their votes
+    // Merge different voters by combining their votes，合并差集
     for (String differentCandidateId : differentVoteNodeSet) {
       if (firstCandidate.getVotes().containsKey(differentCandidateId)) {
         mergeResult.getVotes()
@@ -84,7 +97,7 @@ public class MajorityVote implements Crdt<Map<String, VoteCandidate>, MajorityVo
                 .put(differentCandidateId, secondCandidate.getVotes().get(differentCandidateId));
       }
     }
-    // Merge vote for same voter
+    // Merge vote for same voter， 合并相同的投注
     for (String sameVoteNodeId : sameVoteNodeSet) {
       if (firstCandidate.getVotes().containsKey(sameVoteNodeId) && secondCandidate.getVotes()
               .containsKey(sameVoteNodeId)) {
@@ -97,7 +110,12 @@ public class MajorityVote implements Crdt<Map<String, VoteCandidate>, MajorityVo
     return mergeResult;
   }
 
-  // Merge two votes from same voter
+  /**
+   * Merge two votes from same voter
+   * @param firstVote
+   * @param secondVote
+   * @return
+   */
   private Vote mergeVote(Vote firstVote, Vote secondVote) {
     if (firstVote.getVoteValue().booleanValue() != secondVote.getVoteValue().booleanValue()) {
       if (firstVote.getVoteExchange()) {
@@ -112,12 +130,24 @@ public class MajorityVote implements Crdt<Map<String, VoteCandidate>, MajorityVo
     }
   }
 
+  /**
+   * 获取交集
+   * @param first
+   * @param second
+   * @return
+   */
   private Set<String> getIntersection(Set<String> first, Set<String> second) {
     Set<String> intersection = new HashSet<>(first);
     intersection.retainAll(second);
     return intersection;
   }
 
+  /**
+   * 获取差集
+   * @param first
+   * @param second
+   * @return
+   */
   private Set<String> getIntersectionCompliment(Set<String> first, Set<String> second) {
     Set<String> union = new HashSet<>();
     union.addAll(first);

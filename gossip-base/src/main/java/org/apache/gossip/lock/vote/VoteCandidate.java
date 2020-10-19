@@ -25,8 +25,17 @@ import java.util.Objects;
  */
 public class VoteCandidate {
 
+  /**
+   * 候选节点id
+   */
   private final String candidateNodeId;
+  /**
+   * 投注key
+   */
   private final String votingKey;
+  /**
+   * 投注信息<投注节点，投注信息>
+   */
   private final Map<String, Vote> votes;
 
   public VoteCandidate(String candidateNodeId, String votingKey, Map<String, Vote> votes) {

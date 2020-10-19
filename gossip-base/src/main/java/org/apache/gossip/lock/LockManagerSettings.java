@@ -24,15 +24,29 @@ import org.apache.gossip.lock.vote.VoteSelector;
  * Stores the lock manager related settings.
  */
 public class LockManagerSettings {
-  // Time between vote updates in ms. Default is 1 second.
+  /**
+   * Time between vote updates in ms. Default is 1 second. 更新投票信息
+   */
   private final int voteUpdateInterval;
-  // Vote selection algorithm. Default is random voting
+  /**
+   * Vote selection algorithm. Default is random voting
+   * 投票选择器，默认随机
+   */
   private final VoteSelector voteSelector;
-  // Number of nodes available for voting. Default is -1 (Auto calculate)
+  /**
+   * Number of nodes available for voting. Default is -1 (Auto calculate)
+   * 可投注的节点数量
+   */
   private final int numberOfNodes;
-  // Number of times to test for deadlock before preventing. Default is 3
+  /**
+   * Number of times to test for deadlock before preventing. Default is 3
+   * 死锁探测间隔
+   */
   private final int deadlockDetectionThreshold;
-  // Wait time between vote result calculation. Default is 1000
+  /**
+   * Wait time between vote result calculation. Default is 1000
+   * 等待投注时间
+   */
   private final int resultCalculationDelay;
 
   /**

@@ -24,6 +24,7 @@ import java.util.Set;
 
 /**
  * VoteSelector implementation which randomly select a voting node.
+ * 随机选择一个投票节点
  */
 public class RandomVoteSelector implements VoteSelector {
 

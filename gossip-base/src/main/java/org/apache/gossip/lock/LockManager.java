@@ -54,7 +54,13 @@ public class LockManager {
   private final GossipManager gossipManager;
   private final LockManagerSettings lockSettings;
   private final ScheduledExecutorService voteService;
+  /**
+   * 节点数量
+   */
   private final AtomicInteger numberOfNodes;
+  /**
+   * key锁
+   */
   private final Set<String> lockKeys;
   // For MetricRegistry
   public static final String LOCK_KEY_SET_SIZE = "gossip.lock.key_set_size";
@@ -69,18 +75,20 @@ public class LockManager {
     this.lockKeys = new CopyOnWriteArraySet<>();
     metrics.register(LOCK_KEY_SET_SIZE, (Gauge<Integer>) lockKeys::size);
     lockTimeMetric = metrics.timer(LOCK_TIME);
-    // Register listener for lock keys
+    // Register listener for lock keys， 注册锁监听器
     gossipManager.registerSharedDataSubscriber((key, oldValue, newValue) -> {
       if (key.contains("lock/")) {
         lockKeys.add(key);
       }
     });
     voteService = Executors.newScheduledThreadPool(2);
+    //更新投票结果
     voteService.scheduleAtFixedRate(this::updateVotes, 0, lockSettings.getVoteUpdateInterval(),
             TimeUnit.MILLISECONDS);
   }
 
   /**
+   * 获取共享数据锁
    * @param key
    * @throws VoteFailedException
    */
@@ -96,17 +104,17 @@ public class LockManager {
       MajorityVote majorityVoteResult = (MajorityVote) message.getPayload();
       final Map<String, VoteCandidate> voteCandidatesMap = majorityVoteResult.value();
       final Map<String, Boolean> voteResultMap = new HashMap<>();
-      // Store the vote result for each vote candidate nodes
+      // Store the vote result for each vote candidate nodes，存储每个节点的投注信息
       voteCandidatesMap.forEach((candidateId, voteCandidate) -> voteResultMap
               .put(candidateId, isVoteSuccess(voteCandidate)));
-
+      //获取提名的节点数
       long passedCandidates = voteResultMap.values().stream().filter(aBoolean -> aBoolean).count();
       String myNodeId = gossipManager.getMyself().getId();
       if (LOGGER.isDebugEnabled()) {
         LOGGER.debug("NodeId=" + myNodeId + ", VoteMap=" + voteResultMap + ", WinnerCount="
                 + passedCandidates);
       }
-      // Check for possible dead lock when no candidates were won
+      // Check for possible dead lock when no candidates were won，可能死锁
       if (passedCandidates == 0) {
         if (isDeadLock(voteCandidatesMap)) {
           deadlockDetectCount++;
@@ -125,6 +133,7 @@ public class LockManager {
         context.stop();
         if (voteResultMap.get(myNodeId)) {
           // There is one winner and that is my node, therefore break the while loop and continue
+          //当前节点获取锁
           break;
         } else {
           throw new VoteFailedException("Node " + myNodeId + " failed to lock on key: " + key);
@@ -145,12 +154,14 @@ public class LockManager {
 
   /**
    *  Generate Crdt lock message for voting
+   *  产生投注CRDT锁消息
    * @param key
    * @return
    */
   private SharedDataMessage generateLockMessage(String key) {
     VoteCandidate voteCandidate = new VoteCandidate(gossipManager.getMyself().getId(), key,
             new ConcurrentHashMap<>());
+    //先投自己
     voteCandidate.addVote(new Vote(gossipManager.getMyself().getId(), true, false,
             gossipManager.getLiveMembers().stream().map(Member::getId).collect(Collectors.toList()),
             gossipManager.getDeadMembers().stream().map(Member::getId)
@@ -185,13 +196,14 @@ public class LockManager {
       String myVoteCandidate = getVotedCandidateNodeId(myNodeId, voteCandidateMap);
 
       if (myVoteCandidate == null) {
+        //候选节点为空，随机选择一个节点
         myVoteCandidate = lockSettings.getVoteSelector().getVoteCandidateId(voteCandidateMap.keySet());
       }
       for (VoteCandidate voteCandidate : voteCandidateMap.values()) {
         if (voteCandidate.getCandidateNodeId().equals(myNodeId)) {
           continue;
         }
-        // Vote for selected candidate
+        // Vote for selected candidate 否则投票随机选举后的节点
         boolean voteResult = voteCandidate.getCandidateNodeId().equals(myVoteCandidate);
         voteCandidate.addVote(new Vote(gossipManager.getMyself().getId(), voteResult, false,
                 gossipManager.getLiveMembers().stream().map(Member::getId)
@@ -204,6 +216,7 @@ public class LockManager {
 
   /**
    *  Return true if every node has a vote from given node id.
+   *  如果所有节点都投票当前节点，则返回true
    * @param nodeId
    * @param voteCandidates
    * @return
@@ -235,6 +248,7 @@ public class LockManager {
               .map(Vote::getLiveMembers).flatMap(List::stream).collect(Collectors.toSet());
       numberOfLiveNodes = liveNodes.size();
     }
+    //都投注为true
     for (VoteCandidate voteCandidate : voteCandidates.values()) {
       result = result && voteCandidate.getVotes().size() == numberOfLiveNodes;
     }
@@ -243,6 +257,7 @@ public class LockManager {
 
   /**
    * Prevent the deadlock by giving up the votes
+   * 阻止死锁
    * @param voteCandidates
    */
   private void preventDeadLock(Map<String, VoteCandidate> voteCandidates) {
@@ -251,13 +266,13 @@ public class LockManager {
     if (myResults == null) {
       return;
     }
-    // Set of nodes that is going to receive this nodes votes
+    // Set of nodes that is going to receive this nodes votes， 获取小于当前节点的候选集
     List<String> donateCandidateIds = voteCandidates.keySet().stream()
             .filter(s -> s.compareTo(myNodeId) < 0).collect(Collectors.toList());
     if (donateCandidateIds.size() == 0) {
       return;
     }
-    // Select a random node to donate
+    // Select a random node to donate，选择随机节点选举
     Random randomizer = new Random();
     String selectedCandidateId = donateCandidateIds
             .get(randomizer.nextInt(donateCandidateIds.size()));
@@ -282,6 +297,7 @@ public class LockManager {
   }
 
   /**
+   * 获取当前节点的投票信息
    * @param nodeId
    * @param voteCandidates
    * @return
@@ -299,6 +315,7 @@ public class LockManager {
 
   /**
    * Return true if the given candidate has passed the vote
+   * 2/3的存活已经通过
    * @param voteCandidate
    * @return
    */

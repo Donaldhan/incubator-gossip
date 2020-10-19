@@ -492,6 +492,7 @@ public abstract class GossipManager {
 
   /**
    * Try to acquire a lock on given shared data key.
+   * 共享数据锁
    * @param key key of tha share data object.
    * @throws VoteFailedException if the locking is failed.
    */

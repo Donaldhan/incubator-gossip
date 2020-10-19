@@ -23,10 +23,25 @@ import java.util.List;
  * Store a voter details.
  */
 public class Vote {
+  /**
+   * 投注节点
+   */
   private final String votingNode;
+  /**
+   * 投注值
+   */
   private final Boolean voteValue; // TODO: 7/16/17  weight?
+  /**
+   *是否交互投票值
+   */
   private Boolean voteExchange;
+  /**
+   * 存活成员
+   */
   private final List<String> liveMembers;
+  /**
+   * 宕机成员
+   */
   private final List<String> deadMembers;
 
   public Vote(String votingNode, Boolean voteValue, Boolean voteExchange, List<String> liveMembers,

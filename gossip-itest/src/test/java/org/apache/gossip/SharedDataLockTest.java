@@ -34,6 +34,9 @@ import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicInteger;
 
+/**
+ * 分布式锁demo
+ */
 @RunWith(JUnitPlatform.class)
 public class SharedDataLockTest extends AbstractIntegrationBase {
 
