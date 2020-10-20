@@ -98,8 +98,8 @@ public class DatacenterRackAwareActiveGossiper extends AbstractActiveGossiper {
   @Override
   public void init() {
     super.init();
-    //same rack
-    scheduledExecutorService.scheduleAtFixedRate(() -> 
+    //same rack //同机房机架
+    scheduledExecutorService.scheduleAtFixedRate(() ->
       threadService.execute(() -> sendToSameRackMember()), 
       0, sameRackGossipIntervalMs, TimeUnit.MILLISECONDS);
     
@@ -111,7 +111,7 @@ public class DatacenterRackAwareActiveGossiper extends AbstractActiveGossiper {
       threadService.execute(() -> sendToSameRackShared()), 
       0, sameRackGossipIntervalMs, TimeUnit.MILLISECONDS);
     
-    //same dc different rack
+    //same dc different rack 同数据中心，不同机房或机架
     scheduledExecutorService.scheduleAtFixedRate(() -> 
       threadService.execute(() -> sameDcDiffernetRackMember()), 
       0, sameDcGossipIntervalMs, TimeUnit.MILLISECONDS);
@@ -124,7 +124,7 @@ public class DatacenterRackAwareActiveGossiper extends AbstractActiveGossiper {
     threadService.execute(() -> sameDcDiffernetRackShared()), 
     0, sameDcGossipIntervalMs, TimeUnit.MILLISECONDS);
     
-    //different dc
+    //different dc 不同的数据中心
     scheduledExecutorService.scheduleAtFixedRate(() -> 
       threadService.execute(() -> differentDcMember()), 
       0, differentDatacenterGossipIntervalMs, TimeUnit.MILLISECONDS);
@@ -137,13 +137,16 @@ public class DatacenterRackAwareActiveGossiper extends AbstractActiveGossiper {
     threadService.execute(() -> differentDcShared()), 
     0, differentDatacenterGossipIntervalMs, TimeUnit.MILLISECONDS);
     
-    //the dead
+    //the dead 宕机成员
     scheduledExecutorService.scheduleAtFixedRate(() -> 
       threadService.execute(() -> sendToDeadMember()), 
       0, randomDeadMemberSendIntervalMs, TimeUnit.MILLISECONDS);
     
   }
 
+  /**
+   * 发送宕机成员
+   */
   private void sendToDeadMember() {
     sendMembershipList(gossipManager.getMyself(), selectPartner(gossipManager.getDeadMembers()));
   }
@@ -162,7 +165,11 @@ public class DatacenterRackAwareActiveGossiper extends AbstractActiveGossiper {
     }
     return notMyDc;
   }
-  
+
+  /**
+   * 同数据中心不同机房或机架
+   * @return
+   */
   private List<LocalMember> sameDatacenterDifferentRack(){
     String myDc = gossipManager.getMyself().getProperties().get(DATACENTER);
     String rack = gossipManager.getMyself().getProperties().get(RACK);
@@ -177,7 +184,11 @@ public class DatacenterRackAwareActiveGossiper extends AbstractActiveGossiper {
     }
     return notMyDc;
   }
-    
+
+  /**
+   * 同机房成员
+   * @return
+   */
   private List<LocalMember> sameRackNodes(){
     String myDc = gossipManager.getMyself().getProperties().get(DATACENTER);
     String rack = gossipManager.getMyself().getProperties().get(RACK);
@@ -195,7 +206,7 @@ public class DatacenterRackAwareActiveGossiper extends AbstractActiveGossiper {
   }
 
   /**
-   *
+   * 发送同机房成员
    */
   private void sendToSameRackMember() {
     LocalMember i = selectPartner(sameRackNodes());
@@ -203,56 +214,56 @@ public class DatacenterRackAwareActiveGossiper extends AbstractActiveGossiper {
   }
 
   /**
-   *
+   * 发送同机房成员数据
    */
   private void sendToSameRackMemberPerNode() {
     sendPerNodeData(gossipManager.getMyself(), selectPartner(sameRackNodes()));
   }
 
   /**
-   *
+   * 发送同机房共享数据
    */
   private void sendToSameRackShared() {
     sendSharedData(gossipManager.getMyself(), selectPartner(sameRackNodes()));
   }
 
   /**
-   *
+   *不同数据中心成员
    */
   private void differentDcMember() {
     sendMembershipList(gossipManager.getMyself(), selectPartner(differentDataCenter()));
   }
 
   /**
-   *
+   * 不同数据中心成员数据
    */
   private void differentDcPerNode() {
     sendPerNodeData(gossipManager.getMyself(), selectPartner(differentDataCenter()));
   }
 
   /**
-   *
+   *不同数据中心成员共享数据
    */
   private void differentDcShared() {
     sendSharedData(gossipManager.getMyself(), selectPartner(differentDataCenter()));
   }
 
   /**
-   *
+   *同数据中心不同机房成员
    */
   private void sameDcDiffernetRackMember() {
     sendMembershipList(gossipManager.getMyself(), selectPartner(sameDatacenterDifferentRack()));
   }
 
   /**
-   *
+   *同数据中心不同机房成员数据
    */
   private void sameDcDiffernetRackPerNode() {
     sendPerNodeData(gossipManager.getMyself(), selectPartner(sameDatacenterDifferentRack()));
   }
 
   /**
-   *
+   *同数据中心不同机房成员共享数据
    */
   private void sameDcDiffernetRackShared() {
     sendSharedData(gossipManager.getMyself(), selectPartner(sameDatacenterDifferentRack()));
